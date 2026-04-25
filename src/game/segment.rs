@@ -108,4 +108,32 @@ mod tests {
         assert_eq!(segment_west.get_tail_coordinates(), Coordinates::new(1, 3));
         assert_eq!(segment_west.get_length(), length - 1);
     }
+
+    #[test]
+    fn get_head_coordinates() {
+        let x = 7;
+        let y = 8;
+        let length = 4;
+        let segment_north = Segment::new(Coordinates::new(x, y), Orientation::North, length);
+        let segment_south = Segment::new(Coordinates::new(x, y), Orientation::South, length);
+        let segment_east = Segment::new(Coordinates::new(x, y), Orientation::East, length);
+        let segment_west = Segment::new(Coordinates::new(x, y), Orientation::West, length);
+
+        assert_eq!(
+            segment_north.get_head_coordinates(),
+            Coordinates::new(x, y + length)
+        );
+        assert_eq!(
+            segment_south.get_head_coordinates(),
+            Coordinates::new(x, y - length)
+        );
+        assert_eq!(
+            segment_east.get_head_coordinates(),
+            Coordinates::new(x + length, y)
+        );
+        assert_eq!(
+            segment_west.get_head_coordinates(),
+            Coordinates::new(x - length, y)
+        );
+    }
 }
