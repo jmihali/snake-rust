@@ -31,20 +31,21 @@ impl Coordinates {
 }
 
 impl Coordinates {
-    pub fn move_north(&mut self) {
-        self.y += 1;
-    }
-
-    pub fn move_south(&mut self) {
-        self.y -= 1;
-    }
-
-    pub fn move_east(&mut self) {
-        self.x += 1;
-    }
-
-    pub fn move_west(&mut self) {
-        self.x -= 1;
+    pub fn move_coordinates(&mut self, orientation: &Orientation, distance: u32) {
+        match orientation {
+            Orientation::North => {
+                self.y += distance;
+            }
+            Orientation::South => {
+                self.y -= distance;
+            }
+            Orientation::East => {
+                self.x += distance;
+            }
+            Orientation::West => {
+                self.x -= distance;
+            }
+        }
     }
 
     pub fn get_relative_coordinates(

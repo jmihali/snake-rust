@@ -45,12 +45,7 @@ impl Segment {
 
     pub fn shorten_tail(&mut self) {
         self.length -= 1;
-        match self.orientation {
-            Orientation::North => self.tail_coordinates.move_north(),
-            Orientation::South => self.tail_coordinates.move_south(),
-            Orientation::East => self.tail_coordinates.move_east(),
-            Orientation::West => self.tail_coordinates.move_west(),
-        }
+        self.tail_coordinates.move_coordinates(&self.orientation, 1);
     }
 }
 
