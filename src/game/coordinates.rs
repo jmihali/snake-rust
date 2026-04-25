@@ -1,3 +1,4 @@
+use crate::game::Orientation;
 use rand;
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -20,11 +21,11 @@ impl Coordinates {
 }
 
 impl Coordinates {
-    fn get_x(&self) -> u32 {
+    pub fn get_x(&self) -> u32 {
         return self.x;
     }
 
-    fn get_y(&self) -> u32 {
+    pub fn get_y(&self) -> u32 {
         return self.y;
     }
 }
@@ -44,6 +45,31 @@ impl Coordinates {
 
     pub fn move_west(&mut self) {
         self.x -= 1;
+    }
+
+    pub fn get_relative_coordinates(
+        &self,
+        orientation: &Orientation,
+        distance: u32,
+    ) -> Coordinates {
+        match orientation {
+            Orientation::North => Coordinates {
+                x: self.x,
+                y: self.y + distance,
+            },
+            Orientation::South => Coordinates {
+                x: self.x,
+                y: self.y - distance,
+            },
+            Orientation::East => Coordinates {
+                x: self.x + distance,
+                y: self.y,
+            },
+            Orientation::West => Coordinates {
+                x: self.x - distance,
+                y: self.y,
+            },
+        }
     }
 }
 

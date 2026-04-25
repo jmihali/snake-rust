@@ -1,7 +1,7 @@
-use crate::game::Coordinates;
-use crate::game::Orientation;
+use crate::game::coordinates::Coordinates;
+use crate::game::orientation::Orientation;
 
-struct Segment {
+pub struct Segment {
     tail_coordinates: Coordinates,
     orientation: Orientation,
     length: u32,
@@ -18,27 +18,32 @@ impl Segment {
 }
 
 impl Segment {
-    fn get_tail_coordinates(&self) -> Coordinates {
+    pub fn get_tail_coordinates(&self) -> Coordinates {
         self.tail_coordinates.clone()
     }
 
-    fn get_length(&self) -> u32 {
+    pub fn get_length(&self) -> u32 {
         self.length
+    }
+
+    pub fn get_head_coordinates(&self) -> Coordinates {
+        self.tail_coordinates
+            .get_relative_coordinates(&self.orientation, self.length)
     }
 }
 
 impl Segment {
-    fn set_orientation(&mut self, orientation: Orientation) {
+    pub fn set_orientation(&mut self, orientation: Orientation) {
         self.orientation = orientation;
     }
 }
 
 impl Segment {
-    fn extend_head(&mut self) {
+    pub fn extend_head(&mut self) {
         self.length += 1;
     }
 
-    fn shorten_tail(&mut self) {
+    pub fn shorten_tail(&mut self) {
         self.length -= 1;
         match self.orientation {
             Orientation::North => self.tail_coordinates.move_north(),
