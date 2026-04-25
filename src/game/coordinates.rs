@@ -1,6 +1,6 @@
 use rand;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct Coordinates {
     x: u32,
     y: u32,
@@ -26,6 +26,24 @@ impl Coordinates {
 
     fn get_y(&self) -> u32 {
         return self.y;
+    }
+}
+
+impl Coordinates {
+    pub fn move_north(&mut self) {
+        self.y += 1;
+    }
+
+    pub fn move_south(&mut self) {
+        self.y -= 1;
+    }
+
+    pub fn move_east(&mut self) {
+        self.x += 1;
+    }
+
+    pub fn move_west(&mut self) {
+        self.x -= 1;
     }
 }
 
