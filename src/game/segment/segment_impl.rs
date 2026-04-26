@@ -1,5 +1,6 @@
 use crate::game::coordinates::Coordinates;
 use crate::game::orientation::Orientation;
+use crate::game::segment::error::{Error, Result};
 
 pub struct Segment {
     tail_coordinates: Coordinates,
@@ -47,15 +48,20 @@ impl Segment {
         self.length += 1;
     }
 
-    pub fn shorten_tail(&mut self) {
+    pub fn shorten_tail(&mut self) -> Result<()> {
+        if self.length == 0 {
+            return Err(Error::SegmentAlreadyZero);
+        }
         self.length -= 1;
-        // todo: how do i handle case of tail becoming < 0?
         self.tail_coordinates.move_coordinates(&self.orientation, 1);
+        Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::game::segment;
+
     use super::*;
 
     #[test]
@@ -96,10 +102,10 @@ mod tests {
         let mut segment_east = Segment::new(Coordinates::new(x, y), Orientation::East, length);
         let mut segment_west = Segment::new(Coordinates::new(x, y), Orientation::West, length);
 
-        segment_north.shorten_tail();
-        segment_south.shorten_tail();
-        segment_east.shorten_tail();
-        segment_west.shorten_tail();
+        let _ = segment_north.shorten_tail();
+        let _ = segment_south.shorten_tail();
+        let _ = segment_east.shorten_tail();
+        let _ = segment_west.shorten_tail();
 
         assert_eq!(segment_north.get_tail_coordinates(), Coordinates::new(2, 4));
         assert_eq!(segment_north.get_length(), length - 1);
@@ -140,5 +146,12 @@ mod tests {
             segment_west.get_head_coordinates(),
             Coordinates::new(x - length, y)
         );
+    }
+
+    #[test]
+    fn shorten_tail_zero_segment() {
+        let mut segment = Segment::new(Coordinates::new(3, 4), Orientation::South, 0);
+
+        assert_eq!(segment.shorten_tail(), Err(Error::SegmentAlreadyZero));
     }
 }
