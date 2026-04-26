@@ -2,6 +2,7 @@ use crate::game::coordinates::Coordinates;
 use crate::game::orientation::Orientation;
 use crate::game::segment::error::{Error, Result};
 
+#[derive(Clone)]
 pub struct Segment {
     tail_coordinates: Coordinates,
     orientation: Orientation,

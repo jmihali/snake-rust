@@ -14,7 +14,17 @@ pub struct Snake {
 impl Snake {
     pub fn new(tail_coordinates: Coordinates, orientation: Orientation, length: u32) -> Self {
         let body = VecDeque::from([Segment::new(tail_coordinates, orientation, length)]);
-        Snake { body: body }
+        Self { body: body }
+    }
+
+    pub fn from_body(body: VecDeque<Segment>) -> Result<Self> {
+        // todo: think of using a different, more generic type for the input argument
+        for window in body.clone().make_contiguous().windows(2) {
+            if window[0].get_head_coordinates() != window[1].get_tail_coordinates() {
+                return Err(Error::BodyNotContiguous);
+            }
+        }
+        Ok(Self { body: body })
     }
 }
 

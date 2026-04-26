@@ -2,6 +2,7 @@
 
 mod error;
 mod snake_impl;
+mod tests;
 
 // -- Flatten
 pub use error::*;
