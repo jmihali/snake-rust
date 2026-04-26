@@ -17,14 +17,23 @@ impl Snake {
         Self { body: body }
     }
 
-    pub fn from_body(body: VecDeque<Segment>) -> Result<Self> {
-        // todo: think of using a different, more generic type for the input argument
-        for window in body.clone().make_contiguous().windows(2) {
-            if window[0].get_head_coordinates() != window[1].get_tail_coordinates() {
-                return Err(Error::BodyNotContiguous);
-            }
+    pub fn from_body<I>(body: I) -> Result<Self>
+    where
+        I: Into<VecDeque<Segment>>,
+    {
+        let body = body.into();
+
+        // Use .iter() and .zip() to simulate windows without cloning or make_contiguous
+        let is_contiguous = body
+            .iter()
+            .zip(body.iter().skip(1))
+            .all(|(current, next)| current.get_head_coordinates() == next.get_tail_coordinates());
+
+        if !is_contiguous {
+            return Err(Error::BodyNotContiguous);
         }
-        Ok(Self { body: body })
+
+        Ok(Self { body })
     }
 }
 
