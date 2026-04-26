@@ -31,7 +31,7 @@ impl Snake {
             .all(|(current, next)| current.get_head_coordinates() == next.get_tail_coordinates());
 
         if !is_contiguous {
-            return Err(Error::BodyNotContiguous);
+            return Err(Error::SnakeBodyNotContiguous);
         }
 
         Ok(Self { body })
