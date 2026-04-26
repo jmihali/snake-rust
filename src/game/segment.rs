@@ -26,6 +26,10 @@ impl Segment {
         self.length
     }
 
+    pub fn get_orientation(&self) -> Orientation {
+        self.orientation.clone()
+    }
+
     pub fn get_head_coordinates(&self) -> Coordinates {
         self.tail_coordinates
             .get_relative_coordinates(&self.orientation, self.length)
@@ -45,6 +49,7 @@ impl Segment {
 
     pub fn shorten_tail(&mut self) {
         self.length -= 1;
+        // todo: how do i handle case of tail becoming < 0?
         self.tail_coordinates.move_coordinates(&self.orientation, 1);
     }
 }
