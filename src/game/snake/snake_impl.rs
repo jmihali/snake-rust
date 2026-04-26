@@ -79,6 +79,13 @@ impl Snake {
         }
     }
 
+    fn get_head_orientation(&self) -> Result<Orientation> {
+        match self.body.back() {
+            Some(head) => Ok(head.get_orientation()),
+            None => Err(Error::SnakeBodyEmpty),
+        }
+    }
+
     fn extend_head_segment(&mut self) -> Result<()> {
         match self.body.back_mut() {
             Some(head) => Ok(head.extend_head()),
@@ -89,13 +96,6 @@ impl Snake {
 
 // public methods
 impl Snake {
-    pub fn get_head_orientation(&self) -> Result<Orientation> {
-        match self.body.back() {
-            Some(head) => Ok(head.get_orientation()),
-            None => Err(Error::SnakeBodyEmpty),
-        }
-    }
-
     pub fn set_head_orientation(&mut self, orientation: Orientation) -> Result<()> {
         if orientation == self.get_head_orientation()? {
             return Ok(());
