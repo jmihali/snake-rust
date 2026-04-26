@@ -97,9 +97,35 @@ impl Snake {
     }
 
     pub fn set_head_orientation(&mut self, orientation: Orientation) -> Result<()> {
-        if orientation != self.get_head_orientation()? {
-            self.add_head_segment(orientation)?;
+        if orientation == self.get_head_orientation()? {
+            return Ok(());
         }
+
+        match self.get_head_orientation()? {
+            Orientation::North => {
+                if orientation == Orientation::South {
+                    return Ok(());
+                }
+            }
+            Orientation::South => {
+                if orientation == Orientation::North {
+                    return Ok(());
+                }
+            }
+            Orientation::East => {
+                if orientation == Orientation::West {
+                    return Ok(());
+                }
+            }
+            Orientation::West => {
+                if orientation == Orientation::East {
+                    return Ok(());
+                }
+            }
+        }
+
+        self.add_head_segment(orientation)?;
+
         Ok(())
     }
 
