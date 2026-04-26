@@ -2,6 +2,7 @@
 
 mod error;
 mod segment_impl;
+mod tests;
 
 // -- Flatten
 pub use error::*;
