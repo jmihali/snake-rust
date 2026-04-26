@@ -11,6 +11,7 @@ pub struct Snake {
     body: VecDeque<Segment>,
 }
 
+// constructors
 impl Snake {
     pub fn new(tail_coordinates: Coordinates, orientation: Orientation, length: u32) -> Self {
         let body = VecDeque::from([Segment::new(tail_coordinates, orientation, length)]);
@@ -37,6 +38,7 @@ impl Snake {
     }
 }
 
+// helper methods
 impl Snake {
     fn remove_tail_segment(&mut self) -> Result<()> {
         let tail = self.body.pop_front();
@@ -83,7 +85,10 @@ impl Snake {
             None => Err(Error::SnakeBodyEmpty),
         }
     }
+}
 
+// public methods
+impl Snake {
     pub fn get_head_orientation(&self) -> Result<Orientation> {
         match self.body.back() {
             Some(head) => Ok(head.get_orientation()),
