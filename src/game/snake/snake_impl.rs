@@ -5,6 +5,7 @@ use crate::game::orientation::{self, Orientation};
 use crate::game::segment::Segment;
 use crate::game::snake::{Error, Result};
 
+#[derive(Debug, PartialEq)]
 pub struct Snake {
     // in the body, the first segment is the tail,
     // and the last segment is the head
