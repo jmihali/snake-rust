@@ -4,7 +4,6 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, From, PartialEq)]
 pub enum Error {
-    SnakeTailSegmentAlreadyZero,
     SnakeBodyEmpty,
     SnakeBodyNotContiguous,
 }

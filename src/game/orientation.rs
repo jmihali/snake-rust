@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum Orientation {
     North,
     South,

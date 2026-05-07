@@ -1,18 +1,17 @@
-use crate::game::Orientation;
 use rand;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Coordinates {
-    x: u32,
-    y: u32,
+    x: i32,
+    y: i32,
 }
 
 impl Coordinates {
-    pub fn new(x: u32, y: u32) -> Self {
+    pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
 
-    pub fn random(max_x: u32, may_y: u32) -> Self {
+    pub fn random(max_x: i32, may_y: i32) -> Self {
         Self {
             x: rand::random_range(0..=max_x),
             y: rand::random_range(0..=may_y),
@@ -21,56 +20,17 @@ impl Coordinates {
 }
 
 impl Coordinates {
-    pub fn get_x(&self) -> u32 {
+    pub fn is_contiguous_to(&self, other: &Coordinates) -> bool {
+        (self.x - other.x == 0 && i32::abs(self.y - other.y) == 1)
+            || (self.y - other.y == 0 && i32::abs(self.x - other.x) == 1)
+    }
+
+    pub fn get_x(&self) -> i32 {
         return self.x;
     }
 
-    pub fn get_y(&self) -> u32 {
+    pub fn get_y(&self) -> i32 {
         return self.y;
-    }
-}
-
-impl Coordinates {
-    pub fn move_coordinates(&mut self, orientation: &Orientation, distance: u32) {
-        match orientation {
-            Orientation::North => {
-                self.y += distance;
-            }
-            Orientation::South => {
-                self.y -= distance;
-            }
-            Orientation::East => {
-                self.x += distance;
-            }
-            Orientation::West => {
-                self.x -= distance;
-            }
-        }
-    }
-
-    pub fn get_relative_coordinates(
-        &self,
-        orientation: &Orientation,
-        distance: u32,
-    ) -> Coordinates {
-        match orientation {
-            Orientation::North => Coordinates {
-                x: self.x,
-                y: self.y + distance,
-            },
-            Orientation::South => Coordinates {
-                x: self.x,
-                y: self.y - distance,
-            },
-            Orientation::East => Coordinates {
-                x: self.x + distance,
-                y: self.y,
-            },
-            Orientation::West => Coordinates {
-                x: self.x - distance,
-                y: self.y,
-            },
-        }
     }
 }
 
@@ -96,5 +56,41 @@ mod tests {
 
         assert!(coordinates.get_x() <= max_x);
         assert!(coordinates.get_y() <= max_y);
+    }
+
+    #[test]
+    fn contiguous_xaxis() {
+        let c1 = Coordinates::new(2, 3);
+        let c2 = Coordinates::new(3, 3);
+
+        assert!(c1.is_contiguous_to(&c2));
+        assert!(c2.is_contiguous_to(&c1));
+    }
+
+    #[test]
+    fn contiguous_yaxis() {
+        let c1 = Coordinates::new(2, 3);
+        let c2 = Coordinates::new(2, 2);
+
+        assert!(c1.is_contiguous_to(&c2));
+        assert!(c2.is_contiguous_to(&c1));
+    }
+
+    #[test]
+    fn not_contiguous_xaxis() {
+        let c1 = Coordinates::new(2, 3);
+        let c2 = Coordinates::new(4, 3);
+
+        assert!(!c1.is_contiguous_to(&c2));
+        assert!(!c1.is_contiguous_to(&c1));
+    }
+
+    #[test]
+    fn not_contiguous_yaxis() {
+        let c1 = Coordinates::new(2, 3);
+        let c2 = Coordinates::new(2, 5);
+
+        assert!(!c1.is_contiguous_to(&c2));
+        assert!(!c1.is_contiguous_to(&c1));
     }
 }

@@ -1,96 +1,79 @@
-use std::collections::{VecDeque, vec_deque};
-
 use crate::game::coordinates::Coordinates;
-use crate::game::orientation::{self, Orientation};
-use crate::game::segment::Segment;
+use crate::game::orientation::Orientation;
 use crate::game::snake::{Error, Result};
 
 #[derive(Debug, PartialEq)]
 pub struct Snake {
-    // in the body, the first segment is the tail,
-    // and the last segment is the head
-    body: VecDeque<Segment>,
+    body: Vec<Coordinates>, // body[0] = head
+    head_orientation: Orientation,
 }
 
 // constructors
 impl Snake {
-    pub fn new(tail_coordinates: Coordinates, orientation: Orientation, length: u32) -> Self {
-        let body = VecDeque::from([Segment::new(tail_coordinates, orientation, length)]);
-        Self { body: body }
+    pub fn new(coordinates: Coordinates, orientation: Orientation) -> Self {
+        Self {
+            body: vec![coordinates],
+            head_orientation: orientation,
+        }
     }
 
-    pub fn from_body<I>(body: I) -> Result<Self>
-    where
-        I: Into<VecDeque<Segment>>,
-    {
-        let body = body.into();
-
+    pub fn from_body(body: Vec<Coordinates>, head_orientation: Orientation) -> Result<Self> {
         // Use .iter() and .zip() to simulate windows without cloning or make_contiguous
         let is_contiguous = body
             .iter()
             .zip(body.iter().skip(1))
-            .all(|(current, next)| current.get_head_coordinates() == next.get_tail_coordinates());
+            .all(|(current, next)| current.is_contiguous_to(next));
 
         if !is_contiguous {
             return Err(Error::SnakeBodyNotContiguous);
         }
 
-        Ok(Self { body })
+        // todo: handle case when head orientation is opposite to the body
+        Ok(Self {
+            body,
+            head_orientation,
+        })
     }
 }
 
 // helper methods
 impl Snake {
-    fn remove_tail_segment(&mut self) -> Result<()> {
-        let tail = self.body.pop_front();
-        if tail.is_none() {
+    fn get_head_orientation(&self) -> &Orientation {
+        &self.head_orientation
+    }
+
+    fn shorten_tail(&mut self) -> Result<()> {
+        if let Some(_) = self.body.pop() {
+            return Ok(());
+        }
+        Err(Error::SnakeBodyEmpty)
+    }
+
+    fn extend_head(&mut self) -> Result<()> {
+        if let Some(current_head_coordinates) = self.body.get(0) {
+            let new_head_coordinates = match self.head_orientation {
+                Orientation::North => Coordinates::new(
+                    current_head_coordinates.get_x(),
+                    current_head_coordinates.get_y() + 1,
+                ),
+                Orientation::South => Coordinates::new(
+                    current_head_coordinates.get_x(),
+                    current_head_coordinates.get_y() - 1,
+                ),
+                Orientation::East => Coordinates::new(
+                    current_head_coordinates.get_x() + 1,
+                    current_head_coordinates.get_y(),
+                ),
+                Orientation::West => Coordinates::new(
+                    current_head_coordinates.get_x() - 1,
+                    current_head_coordinates.get_y(),
+                ),
+            };
+
+            self.body.insert(0, new_head_coordinates);
+            Ok(())
+        } else {
             return Err(Error::SnakeBodyEmpty);
-        }
-        Ok(())
-    }
-
-    fn add_head_segment(&mut self, orientation: Orientation) -> Result<()> {
-        let current_head_segment = self.body.back();
-
-        match current_head_segment {
-            Some(head) => {
-                let new_head_segment_tail = head.get_head_coordinates();
-                let new_head_segment = Segment::new(new_head_segment_tail, orientation, 0);
-                self.body.push_back(new_head_segment);
-                Ok(())
-            }
-            None => Err(Error::SnakeBodyEmpty),
-        }
-    }
-
-    fn shorten_tail_segment(&mut self) -> Result<()> {
-        match self.body.front_mut() {
-            Some(tail) => {
-                tail.shorten_tail();
-                Ok(())
-            }
-            None => Err(Error::SnakeBodyEmpty),
-        }
-    }
-
-    fn get_tail_length(&self) -> Result<u32> {
-        match self.body.front() {
-            Some(tail) => Ok(tail.get_length()),
-            None => Err(Error::SnakeBodyEmpty),
-        }
-    }
-
-    fn get_head_orientation(&self) -> Result<Orientation> {
-        match self.body.back() {
-            Some(head) => Ok(head.get_orientation()),
-            None => Err(Error::SnakeBodyEmpty),
-        }
-    }
-
-    fn extend_head_segment(&mut self) -> Result<()> {
-        match self.body.back_mut() {
-            Some(head) => Ok(head.extend_head()),
-            None => Err(Error::SnakeBodyEmpty),
         }
     }
 }
@@ -98,11 +81,11 @@ impl Snake {
 // public methods
 impl Snake {
     pub fn set_head_orientation(&mut self, orientation: Orientation) -> Result<()> {
-        if orientation == self.get_head_orientation()? {
+        if orientation == self.head_orientation {
             return Ok(());
         }
 
-        match self.get_head_orientation()? {
+        match self.head_orientation {
             Orientation::North => {
                 if orientation == Orientation::South {
                     return Ok(());
@@ -125,19 +108,20 @@ impl Snake {
             }
         }
 
-        self.add_head_segment(orientation)?;
+        self.head_orientation = orientation;
 
         Ok(())
     }
 
     pub fn advance(&mut self, grow: bool) -> Result<()> {
-        self.extend_head_segment()?;
+        self.extend_head()?;
         if !grow {
-            self.shorten_tail_segment()?;
-            if self.get_tail_length()? == 0 {
-                self.remove_tail_segment()?;
-            }
+            self.shorten_tail()?;
         }
         Ok(())
+    }
+
+    pub fn get_body(&self) -> &Vec<Coordinates> {
+        &self.body
     }
 }
