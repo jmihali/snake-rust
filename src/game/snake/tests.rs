@@ -115,9 +115,8 @@ mod tests {
 
         let snake_after = Snake::from_body(
             vec![
-                Coordinates::new(3, 5),
-                Coordinates::new(3, 4),
-                Coordinates::new(3, 3),
+                Coordinates::new(3, 0),
+                Coordinates::new(3, 1),
                 Coordinates::new(3, 2),
                 Coordinates::new(2, 2),
                 Coordinates::new(2, 1),
@@ -130,7 +129,6 @@ mod tests {
 
         snake.set_head_orientation(Orientation::North).unwrap();
 
-        snake.advance(true).unwrap();
         snake.advance(true).unwrap();
         snake.advance(false).unwrap();
 

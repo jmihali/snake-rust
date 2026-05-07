@@ -54,11 +54,11 @@ impl Snake {
             let new_head_coordinates = match self.head_orientation {
                 Orientation::North => Coordinates::new(
                     current_head_coordinates.get_x(),
-                    current_head_coordinates.get_y() + 1,
+                    current_head_coordinates.get_y() - 1,
                 ),
                 Orientation::South => Coordinates::new(
                     current_head_coordinates.get_x(),
-                    current_head_coordinates.get_y() - 1,
+                    current_head_coordinates.get_y() + 1,
                 ),
                 Orientation::East => Coordinates::new(
                     current_head_coordinates.get_x() + 1,
@@ -75,6 +75,13 @@ impl Snake {
         } else {
             return Err(Error::SnakeBodyEmpty);
         }
+    }
+
+    pub fn get_head(&self) -> Result<&Coordinates> {
+        if let Some(head) = self.body.get(0) {
+            return Ok(head);
+        }
+        Err(Error::SnakeBodyEmpty)
     }
 }
 
@@ -109,6 +116,7 @@ impl Snake {
         }
 
         self.head_orientation = orientation;
+        dbg!(self.head_orientation);
 
         Ok(())
     }
@@ -123,5 +131,14 @@ impl Snake {
 
     pub fn get_body(&self) -> &Vec<Coordinates> {
         &self.body
+    }
+
+    pub fn has_collided(&self, grid_width: u32, grid_height: u32) -> Result<bool> {
+        let head = self.get_head()?;
+
+        Ok((head.get_x() < 0)
+            || (head.get_y() < 0)
+            || (head.get_x() >= grid_width as i32)
+            || (head.get_y() >= grid_height as i32))
     }
 }
