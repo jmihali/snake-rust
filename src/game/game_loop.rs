@@ -36,9 +36,8 @@ fn draw_grid(width: u32, height: u32, cell_size: f32) {
     }
 }
 
-fn has_snake_reached_apple(snake: &Snake, apple: &Apple) -> bool {
-    // todo: do not use unwrap
-    snake.get_head().unwrap() == apple.get_coordinates()
+fn has_snake_reached_apple(snake: &Snake, apple: &Apple) -> Result<bool> {
+    Ok(snake.get_head()? == apple.get_coordinates())
 }
 
 pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
@@ -57,13 +56,13 @@ pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
         match state {
             GameState::Running => {
                 if is_key_pressed(KeyCode::Up) {
-                    snake.set_head_orientation(Orientation::North);
+                    snake.set_head_orientation(Orientation::North).unwrap();
                 } else if is_key_pressed(KeyCode::Down) {
-                    snake.set_head_orientation(Orientation::South);
+                    snake.set_head_orientation(Orientation::South).unwrap();
                 } else if is_key_pressed(KeyCode::Left) {
-                    snake.set_head_orientation(Orientation::West);
+                    snake.set_head_orientation(Orientation::West).unwrap();
                 } else if is_key_pressed(KeyCode::Right) {
-                    snake.set_head_orientation(Orientation::East);
+                    snake.set_head_orientation(Orientation::East).unwrap();
                 }
 
                 let dt = get_frame_time();
@@ -77,12 +76,12 @@ pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
                         state = GameState::GameOver;
                     } else if snake.has_collided_with_itself().unwrap() {
                         state = GameState::GameOver;
-                    } else if has_snake_reached_apple(&snake, &apple) {
+                    } else if has_snake_reached_apple(&snake, &apple).unwrap() {
                         grow = true;
                         apple = Apple::random(grid_width, grid_height, &snake);
                     }
 
-                    snake.advance(grow);
+                    snake.advance(grow).unwrap();
                 }
             }
             GameState::GameOver => {
