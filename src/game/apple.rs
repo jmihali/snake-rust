@@ -6,9 +6,9 @@ pub struct Apple {
 }
 
 impl Apple {
-    pub fn random(max_x: i32, may_y: i32, snake: &Snake) -> Self {
+    pub fn random(max_x: u32, may_y: u32, snake: &Snake) -> Self {
         loop {
-            let coordinates = Coordinates::random(max_x, may_y);
+            let coordinates = Coordinates::random(max_x as i32, may_y as i32);
 
             if snake.get_body().iter().all(|x| *x != coordinates) {
                 return Self { coordinates };
