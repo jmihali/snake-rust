@@ -1,6 +1,5 @@
 use crate::Coordinates;
 use crate::Snake;
-use crate::game::coordinates;
 
 pub struct Apple {
     coordinates: Coordinates,
