@@ -39,10 +39,6 @@ impl Snake {
 
 // helper methods
 impl Snake {
-    fn get_head_orientation(&self) -> &Orientation {
-        &self.head_orientation
-    }
-
     fn shorten_tail(&mut self) -> Result<()> {
         if let Some(_) = self.body.pop() {
             return Ok(());
