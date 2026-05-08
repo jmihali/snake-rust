@@ -45,31 +45,11 @@ impl Snake {
     }
 
     fn extend_head(&mut self) -> Result<()> {
-        if let Some(current_head_coordinates) = self.body.get(0) {
-            let new_head_coordinates = match self.head_orientation {
-                Orientation::North => Coordinates::new(
-                    current_head_coordinates.get_x(),
-                    current_head_coordinates.get_y() - 1,
-                ),
-                Orientation::South => Coordinates::new(
-                    current_head_coordinates.get_x(),
-                    current_head_coordinates.get_y() + 1,
-                ),
-                Orientation::East => Coordinates::new(
-                    current_head_coordinates.get_x() + 1,
-                    current_head_coordinates.get_y(),
-                ),
-                Orientation::West => Coordinates::new(
-                    current_head_coordinates.get_x() - 1,
-                    current_head_coordinates.get_y(),
-                ),
-            };
-
-            self.body.insert(0, new_head_coordinates);
-            Ok(())
-        } else {
-            Err(Error::SnakeBodyEmpty)
-        }
+        let head = self.body.get(0).ok_or(Error::SnakeBodyEmpty)?;
+        let (dx, dy) = self.head_orientation.get_delta();
+        let new_head = Coordinates::new(head.get_x() + dx, head.get_y() + dy);
+        self.body.insert(0, new_head);
+        Ok(())
     }
 
     pub fn get_head(&self) -> Result<&Coordinates> {
