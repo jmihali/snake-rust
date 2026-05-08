@@ -85,35 +85,18 @@ impl Snake {
 // public methods
 impl Snake {
     pub fn set_head_orientation(&mut self, orientation: Orientation) -> Result<()> {
-        if orientation == self.head_orientation {
-            return Ok(());
-        }
+        // Prevent 180-degree turns (opposite directions)
+        let is_opposite = matches!(
+            (self.head_orientation, orientation),
+            (Orientation::North, Orientation::South)
+                | (Orientation::South, Orientation::North)
+                | (Orientation::East, Orientation::West)
+                | (Orientation::West, Orientation::East)
+        );
 
-        match self.head_orientation {
-            Orientation::North => {
-                if orientation == Orientation::South {
-                    return Ok(());
-                }
-            }
-            Orientation::South => {
-                if orientation == Orientation::North {
-                    return Ok(());
-                }
-            }
-            Orientation::East => {
-                if orientation == Orientation::West {
-                    return Ok(());
-                }
-            }
-            Orientation::West => {
-                if orientation == Orientation::East {
-                    return Ok(());
-                }
-            }
+        if !is_opposite {
+            self.head_orientation = orientation;
         }
-
-        self.head_orientation = orientation;
-        dbg!(self.head_orientation);
 
         Ok(())
     }
