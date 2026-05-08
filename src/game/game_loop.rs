@@ -42,7 +42,7 @@ fn has_snake_reached_apple(snake: &Snake, apple: &Apple) -> Result<bool> {
 
 pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
     let mut snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
-    let mut apple = Apple::random(grid_width, grid_height, &snake);
+    let mut apple = Apple::random(grid_width, grid_height, &snake).unwrap();
 
     let mut state = GameState::Running;
     let mut timer = 0.0;
@@ -78,7 +78,7 @@ pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
                         state = GameState::GameOver;
                     } else if has_snake_reached_apple(&snake, &apple).unwrap() {
                         grow = true;
-                        apple = Apple::random(grid_width, grid_height, &snake);
+                        apple = Apple::random(grid_width, grid_height, &snake).unwrap();
                     }
 
                     snake.advance(grow).unwrap();
@@ -88,7 +88,7 @@ pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
                 // press Enter to restart
                 if is_key_pressed(KeyCode::Enter) {
                     snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
-                    apple = Apple::random(grid_width, grid_height, &snake);
+                    apple = Apple::random(grid_width, grid_height, &snake).unwrap();
                     state = GameState::Running;
                     timer = 0.0;
                 }

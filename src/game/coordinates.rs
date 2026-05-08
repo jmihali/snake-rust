@@ -11,10 +11,10 @@ impl Coordinates {
         Self { x, y }
     }
 
-    pub fn random(max_x: i32, may_y: i32) -> Self {
+    pub fn random(max_x: i32, max_y: i32) -> Self {
         Self {
             x: rand::random_range(0..max_x),
-            y: rand::random_range(0..may_y),
+            y: rand::random_range(0..max_y),
         }
     }
 }
