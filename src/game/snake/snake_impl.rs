@@ -40,10 +40,8 @@ impl Snake {
 // helper methods
 impl Snake {
     fn shorten_tail(&mut self) -> Result<()> {
-        if let Some(_) = self.body.pop() {
-            return Ok(());
-        }
-        Err(Error::SnakeBodyEmpty)
+        // .map(|_| ()) converts the Option<T> (the popped element) into an Option<()>
+        self.body.pop().map(|_| ()).ok_or(Error::SnakeBodyEmpty)
     }
 
     fn extend_head(&mut self) -> Result<()> {
