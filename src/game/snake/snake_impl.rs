@@ -28,6 +28,7 @@ impl Snake {
             return Err(Error::SnakeBodyNotContiguous);
         }
 
+        // todo: handle case when snake has collided with itself
         // todo: handle case when head orientation is opposite to the body
         Ok(Self {
             body,
@@ -140,5 +141,10 @@ impl Snake {
             || (head.get_y() < 0)
             || (head.get_x() >= grid_width as i32)
             || (head.get_y() >= grid_height as i32))
+    }
+
+    pub fn has_collided_with_itself(&self) -> Result<bool> {
+        let head = self.get_head()?;
+        Ok(self.body.iter().skip(1).any(|x| x == head))
     }
 }

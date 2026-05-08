@@ -134,4 +134,40 @@ mod tests {
 
         assert_eq!(snake, snake_after);
     }
+
+    #[test]
+    fn snake_has_not_collided_with_itself() {
+        let snake = Snake::from_body(
+            vec![
+                Coordinates::new(3, 2),
+                Coordinates::new(2, 2),
+                Coordinates::new(2, 1),
+                Coordinates::new(2, 0),
+                Coordinates::new(1, 0),
+                Coordinates::new(0, 0),
+            ],
+            Orientation::East,
+        )
+        .unwrap();
+
+        assert!(!snake.has_collided_with_itself().unwrap());
+    }
+
+    #[test]
+    fn snake_has_collided_with_itself() {
+        let snake = Snake::from_body(
+            vec![
+                Coordinates::new(1, 0),
+                Coordinates::new(1, 1),
+                Coordinates::new(2, 1),
+                Coordinates::new(2, 0),
+                Coordinates::new(1, 0),
+                Coordinates::new(0, 0),
+            ],
+            Orientation::East,
+        )
+        .unwrap();
+
+        assert!(snake.has_collided_with_itself().unwrap());
+    }
 }

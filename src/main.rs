@@ -80,6 +80,8 @@ async fn main() {
                     // todo: remove unwrap
                     if snake.has_collided(GRID_WIDTH, GRID_HEIGHT).unwrap() {
                         state = GameState::GameOver;
+                    } else if snake.has_collided_with_itself().unwrap() {
+                        state = GameState::GameOver;
                     } else if has_snake_reached_apple(&snake, &apple) {
                         grow = true;
                         apple = Apple::random(GRID_WIDTH as i32, GRID_HEIGHT as i32, &snake);
