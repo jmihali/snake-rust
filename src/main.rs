@@ -24,9 +24,9 @@ pub fn draw_snake(snake: &Snake) {
     }
 }
 
-pub fn draw_apple(apple: &Coordinates) {
-    let px = apple.get_x() as f32 * CELL_SIZE + CELL_SIZE / 2.0;
-    let py = apple.get_y() as f32 * CELL_SIZE + CELL_SIZE / 2.0;
+pub fn draw_apple(apple: &Apple) {
+    let px = apple.get_coordinates().get_x() as f32 * CELL_SIZE + CELL_SIZE / 2.0;
+    let py = apple.get_coordinates().get_y() as f32 * CELL_SIZE + CELL_SIZE / 2.0;
     draw_circle(px, py, CELL_SIZE / 2.5, RED);
 }
 
@@ -43,6 +43,7 @@ pub fn draw_grid(width: u32, height: u32, cell_size: f32) {
 #[macroquad::main("Snake in Rust")]
 async fn main() {
     let mut snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
+    let mut apple = Apple::random(GRID_WIDTH as i32, GRID_HEIGHT as i32, &snake);
 
     let mut state = GameState::Running;
     let mut timer = 0.0;
@@ -81,6 +82,7 @@ async fn main() {
                 // press Enter to restart
                 if is_key_pressed(KeyCode::Enter) {
                     snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
+                    apple = Apple::random(GRID_WIDTH as i32, GRID_HEIGHT as i32, &snake);
                     state = GameState::Running;
                     timer = 0.0;
                 }
@@ -91,7 +93,7 @@ async fn main() {
         draw_grid(GRID_WIDTH, GRID_HEIGHT, CELL_SIZE);
 
         draw_snake(&snake);
-
+        draw_apple(&apple);
         next_frame().await;
     }
 }
