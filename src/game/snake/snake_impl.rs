@@ -68,7 +68,7 @@ impl Snake {
             self.body.insert(0, new_head_coordinates);
             Ok(())
         } else {
-            return Err(Error::SnakeBodyEmpty);
+            Err(Error::SnakeBodyEmpty)
         }
     }
 
@@ -83,16 +83,7 @@ impl Snake {
 // public methods
 impl Snake {
     pub fn set_head_orientation(&mut self, orientation: Orientation) -> Result<()> {
-        // Prevent 180-degree turns (opposite directions)
-        let is_opposite = matches!(
-            (self.head_orientation, orientation),
-            (Orientation::North, Orientation::South)
-                | (Orientation::South, Orientation::North)
-                | (Orientation::East, Orientation::West)
-                | (Orientation::West, Orientation::East)
-        );
-
-        if !is_opposite {
+        if !self.head_orientation.is_opposite(orientation) {
             self.head_orientation = orientation;
         }
 
@@ -107,7 +98,7 @@ impl Snake {
         Ok(())
     }
 
-    pub fn get_body(&self) -> &Vec<Coordinates> {
+    pub fn get_body(&self) -> &[Coordinates] {
         &self.body
     }
 
