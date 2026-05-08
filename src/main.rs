@@ -40,6 +40,11 @@ pub fn draw_grid(width: u32, height: u32, cell_size: f32) {
     }
 }
 
+pub fn has_snake_reached_apple(snake: &Snake, apple: &Apple) -> bool {
+    // todo: do not use unwrap
+    snake.get_head().unwrap() == apple.get_coordinates()
+}
+
 #[macroquad::main("Snake in Rust")]
 async fn main() {
     let mut snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
@@ -50,6 +55,8 @@ async fn main() {
     let move_delay = 0.3; // seconds between moves
 
     loop {
+        let mut grow = false;
+
         clear_background(BLACK);
 
         match state {
@@ -70,12 +77,15 @@ async fn main() {
                 if timer >= move_delay {
                     timer = 0.0;
 
-                    snake.advance(false);
-
                     // todo: remove unwrap
                     if snake.has_collided(GRID_WIDTH, GRID_HEIGHT).unwrap() {
                         state = GameState::GameOver;
+                    } else if has_snake_reached_apple(&snake, &apple) {
+                        grow = true;
+                        apple = Apple::random(GRID_WIDTH as i32, GRID_HEIGHT as i32, &snake);
                     }
+
+                    snake.advance(grow);
                 }
             }
             GameState::GameOver => {
