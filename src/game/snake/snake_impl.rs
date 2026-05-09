@@ -63,12 +63,10 @@ impl Snake {
 
 // public methods
 impl Snake {
-    pub fn set_head_orientation(&mut self, orientation: Orientation) -> Result<()> {
+    pub fn set_head_orientation(&mut self, orientation: Orientation) {
         if !self.head_orientation.is_opposite(orientation) {
             self.head_orientation = orientation;
         }
-
-        Ok(())
     }
 
     pub fn advance(&mut self, grow: bool) -> Result<()> {
