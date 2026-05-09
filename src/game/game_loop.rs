@@ -43,6 +43,7 @@ pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
     let mut state = GameState::Running;
     let mut timer = 0.0;
     let move_delay = 0.15; // seconds between moves
+    let mut grow = false;
 
     request_new_screen_size(
         grid_width as f32 * cell_size,
@@ -50,8 +51,6 @@ pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
     );
 
     loop {
-        let mut grow = false;
-
         clear_background(BLACK);
 
         match state {
@@ -72,6 +71,8 @@ pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
                 if timer >= move_delay {
                     timer = 0.0;
 
+                    snake.advance(grow).unwrap();
+
                     // todo: remove unwrap
                     if snake
                         .has_collided_with_grid(grid_width, grid_height)
@@ -85,9 +86,9 @@ pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
                         apple =
                             Apple::random_grid_except(grid_width, grid_height, snake.get_body())
                                 .unwrap();
+                    } else {
+                        grow = false;
                     }
-
-                    snake.advance(grow).unwrap();
                 }
             }
             GameState::GameOver => {
