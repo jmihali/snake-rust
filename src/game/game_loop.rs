@@ -36,10 +36,6 @@ fn draw_grid(width: u32, height: u32, cell_size: f32) {
     }
 }
 
-fn has_snake_reached_apple(snake: &Snake, apple: &Apple) -> Result<bool> {
-    Ok(snake.get_head()? == apple.get_coordinates())
-}
-
 pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
     let mut snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
     let mut apple = Apple::random_grid_except(grid_width, grid_height, snake.get_body()).unwrap();
@@ -84,7 +80,7 @@ pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
                         state = GameState::GameOver;
                     } else if snake.has_collided_with_itself().unwrap() {
                         state = GameState::GameOver;
-                    } else if has_snake_reached_apple(&snake, &apple).unwrap() {
+                    } else if snake.has_reached_apple(&apple).unwrap() {
                         grow = true;
                         apple =
                             Apple::random_grid_except(grid_width, grid_height, snake.get_body())

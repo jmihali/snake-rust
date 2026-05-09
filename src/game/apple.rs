@@ -5,6 +5,12 @@ pub struct Apple {
 }
 
 impl Apple {
+    pub fn new(x: u32, y: u32) -> Self {
+        Apple {
+            coordinates: Coordinates::new(x as i32, y as i32),
+        }
+    }
+
     pub fn random_grid_except(max_x: u32, max_y: u32, exceptions: &[Coordinates]) -> Option<Self> {
         let grid_size = (max_x * max_y) as usize;
         let exceptions_size = exceptions.len();

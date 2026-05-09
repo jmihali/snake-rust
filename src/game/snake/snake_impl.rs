@@ -1,5 +1,6 @@
-use crate::game::coordinates::Coordinates;
-use crate::game::orientation::Orientation;
+use crate::game::Apple;
+use crate::game::Coordinates;
+use crate::game::Orientation;
 use crate::game::snake::{Error, Result};
 
 #[derive(Debug, PartialEq)]
@@ -94,5 +95,9 @@ impl Snake {
     pub fn has_collided_with_itself(&self) -> Result<bool> {
         let head = self.get_head()?;
         Ok(self.body.iter().skip(1).any(|x| x == head))
+    }
+
+    pub fn has_reached_apple(&self, apple: &Apple) -> Result<bool> {
+        Ok(self.get_head()? == apple.get_coordinates())
     }
 }

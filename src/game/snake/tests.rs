@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
     use crate::game::Orientation;
+    use crate::game::apple;
+    use crate::game::apple::Apple;
     use crate::game::coordinates::*;
     use crate::game::snake::*;
 
@@ -169,5 +171,44 @@ mod tests {
         .unwrap();
 
         assert!(snake.has_collided_with_itself().unwrap());
+    }
+
+    #[test]
+    fn snake_has_reached_apple() {
+        let snake = Snake::from_body(
+            vec![
+                Coordinates::new(3, 2),
+                Coordinates::new(2, 2),
+                Coordinates::new(2, 1),
+                Coordinates::new(2, 0),
+                Coordinates::new(1, 0),
+                Coordinates::new(0, 0),
+            ],
+            Orientation::East,
+        )
+        .unwrap();
+
+        let apple = Apple::new(3, 2);
+
+        assert!(snake.has_reached_apple(&apple).unwrap());
+    }
+
+    #[test]
+    fn snake_has_not_reached_apple() {
+        let snake = Snake::from_body(
+            vec![
+                Coordinates::new(2, 2),
+                Coordinates::new(2, 1),
+                Coordinates::new(2, 0),
+                Coordinates::new(1, 0),
+                Coordinates::new(0, 0),
+            ],
+            Orientation::East,
+        )
+        .unwrap();
+
+        let apple = Apple::new(3, 2);
+
+        assert!(!snake.has_reached_apple(&apple).unwrap());
     }
 }
