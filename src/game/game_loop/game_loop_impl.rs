@@ -1,12 +1,10 @@
 use crate::game::apple::*;
 use crate::game::coordinates::*;
+use crate::game::game_loop::{Error, Result};
 use crate::game::orientation::*;
 use crate::game::rendering::*;
 use crate::game::snake::*;
 use macroquad::prelude::*;
-
-pub type Error = Box<dyn std::error::Error>;
-pub type Result<T> = core::result::Result<T, Error>;
 
 enum GameState {
     Running,
@@ -35,16 +33,28 @@ fn update_game_state(
     state: &mut GameState,
 ) -> Result<()> {
     // todo: handle case where state is GameOver
-    snake.advance(*grow)?;
+    snake
+        .advance(*grow)
+        .map_err(|_| Error::FailedToAdvanceSnake)?;
 
-    if snake.has_collided_with_grid(grid_width, grid_height)? || snake.has_collided_with_itself()? {
+    if snake
+        .has_collided_with_edge(grid_width, grid_height)
+        .map_err(|_| Error::FailedToCheckCollisionWithEdge)?
+        || snake
+            .has_collided_with_itself()
+            .map_err(|_| Error::FailedToCheckCollisionWithItself)?
+    {
         *state = GameState::GameOver;
         return Ok(());
     }
 
-    if snake.has_reached_apple(apple)? {
+    if snake
+        .has_reached_apple(apple)
+        .map_err(|_| Error::FailedToCheckIfHasReachedApple)?
+    {
         *grow = true;
-        *apple = Apple::random_grid_except(grid_width, grid_height, snake.get_body()).unwrap();
+        *apple = Apple::random_grid_except(grid_width, grid_height, snake.get_body())
+            .ok_or(Error::FailedToSpawnApple)?;
     } else {
         *grow = false;
     }
@@ -61,7 +71,8 @@ fn initialize_entities(
     grid_height: u32,
 ) -> Result<()> {
     *snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
-    *apple = Apple::random_grid_except(grid_width, grid_height, snake.get_body()).unwrap();
+    *apple = Apple::random_grid_except(grid_width, grid_height, snake.get_body())
+        .ok_or(Error::FailedToSpawnApple)?;
     Ok(())
 }
 
