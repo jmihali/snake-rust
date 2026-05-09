@@ -129,7 +129,7 @@ mod tests {
         )
         .unwrap();
 
-        snake.set_head_orientation(Orientation::North).unwrap();
+        snake.set_head_orientation(Orientation::North);
 
         snake.advance(true).unwrap();
         snake.advance(false).unwrap();
