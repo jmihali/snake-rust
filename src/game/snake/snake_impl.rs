@@ -82,7 +82,7 @@ impl Snake {
         &self.body
     }
 
-    pub fn has_collided(&self, grid_width: u32, grid_height: u32) -> Result<bool> {
+    pub fn has_collided_with_grid(&self, grid_width: u32, grid_height: u32) -> Result<bool> {
         let head = self.get_head()?;
 
         Ok((head.get_x() < 0)

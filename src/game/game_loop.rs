@@ -77,7 +77,10 @@ pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
                     timer = 0.0;
 
                     // todo: remove unwrap
-                    if snake.has_collided(grid_width, grid_height).unwrap() {
+                    if snake
+                        .has_collided_with_grid(grid_width, grid_height)
+                        .unwrap()
+                    {
                         state = GameState::GameOver;
                     } else if snake.has_collided_with_itself().unwrap() {
                         state = GameState::GameOver;
