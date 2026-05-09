@@ -1,5 +1,6 @@
 use crate::game::Coordinates;
 
+#[derive(Default)]
 pub struct Apple {
     coordinates: Coordinates,
 }

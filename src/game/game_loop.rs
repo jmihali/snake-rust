@@ -54,14 +54,27 @@ fn update_game_state(
     Ok(())
 }
 
+fn initialize_entities(
+    snake: &mut Snake,
+    apple: &mut Apple,
+    grid_width: u32,
+    grid_height: u32,
+) -> Result<()> {
+    *snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
+    *apple = Apple::random_grid_except(grid_width, grid_height, snake.get_body()).unwrap();
+    Ok(())
+}
+
 pub async fn run_game_loop(
     grid_width: u32,
     grid_height: u32,
     cell_size: f32,
     move_delay: f32,
 ) -> Result<()> {
-    let mut snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
-    let mut apple = Apple::random_grid_except(grid_width, grid_height, snake.get_body()).unwrap();
+    let mut snake = Snake::default();
+    let mut apple = Apple::default();
+
+    initialize_entities(&mut snake, &mut apple, grid_width, grid_height)?;
 
     let mut state = GameState::Running;
     let mut timer = 0.0;
@@ -100,11 +113,10 @@ pub async fn run_game_loop(
             GameState::GameOver => {
                 // press Enter to restart
                 if is_key_pressed(KeyCode::Enter) {
-                    snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
-                    apple = Apple::random_grid_except(grid_width, grid_height, snake.get_body())
-                        .unwrap();
+                    initialize_entities(&mut snake, &mut apple, grid_width, grid_height)?;
                     state = GameState::Running;
                     timer = 0.0;
+                    grow = false;
                 }
             }
         }

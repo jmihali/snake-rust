@@ -3,7 +3,7 @@ use crate::game::Coordinates;
 use crate::game::Orientation;
 use crate::game::snake::{Error, Result};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, PartialEq)]
 pub struct Snake {
     body: Vec<Coordinates>, // body[0] = head
     head_orientation: Orientation,
