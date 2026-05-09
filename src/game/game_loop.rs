@@ -46,7 +46,12 @@ pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
 
     let mut state = GameState::Running;
     let mut timer = 0.0;
-    let move_delay = 0.3; // seconds between moves
+    let move_delay = 0.15; // seconds between moves
+
+    request_new_screen_size(
+        grid_width as f32 * cell_size,
+        grid_height as f32 * cell_size,
+    );
 
     loop {
         let mut grow = false;
