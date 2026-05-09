@@ -1,17 +1,16 @@
 use crate::game::Coordinates;
-use crate::game::Snake;
 
 pub struct Apple {
     coordinates: Coordinates,
 }
 
 impl Apple {
-    pub fn random(max_x: u32, max_y: u32, snake: &Snake) -> Option<Self> {
+    pub fn random_grid_except(max_x: u32, max_y: u32, exceptions: &[Coordinates]) -> Option<Self> {
         let grid_size = (max_x * max_y) as usize;
-        let snake_size = snake.get_body().len();
+        let exceptions_size = exceptions.len();
 
         // If snake occupies entire grid, no space for apple
-        if snake_size >= grid_size {
+        if exceptions_size >= grid_size {
             return None;
         }
 
@@ -19,11 +18,7 @@ impl Apple {
         for _ in 0..MAX_ATTEMPTS {
             let coordinates = Coordinates::random(max_x as i32, max_y as i32);
 
-            if snake
-                .get_body()
-                .iter()
-                .all(|segment| *segment != coordinates)
-            {
+            if exceptions.iter().all(|segment| *segment != coordinates) {
                 return Some(Self { coordinates });
             }
         }
@@ -31,8 +26,8 @@ impl Apple {
         // Fallback: brute-force search for empty cell
         for x in 0..max_x {
             for y in 0..max_y {
-                let coordinates = Coordinates::new(x as i32, y as i32);
-                if !snake.get_body().contains(&coordinates) {
+                let coordinates: Coordinates = Coordinates::new(x as i32, y as i32);
+                if !exceptions.contains(&coordinates) {
                     return Some(Self { coordinates });
                 }
             }
@@ -50,6 +45,7 @@ impl Apple {
 mod tests {
     use super::*;
     use crate::game::Orientation;
+    use crate::game::Snake;
 
     #[test]
     fn apple_new() {
@@ -66,7 +62,7 @@ mod tests {
         )
         .unwrap();
 
-        let apple = Apple::random(5, 5, &snake).unwrap();
+        let apple = Apple::random_grid_except(5, 5, snake.get_body()).unwrap();
 
         assert!(snake.get_body().iter().all(|x| *x != apple.coordinates))
     }
