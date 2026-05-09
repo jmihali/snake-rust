@@ -36,13 +36,12 @@ fn draw_grid(width: u32, height: u32, cell_size: f32) {
     }
 }
 
-pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32) {
+pub async fn run_game_loop(grid_width: u32, grid_height: u32, cell_size: f32, move_delay: f32) {
     let mut snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
     let mut apple = Apple::random_grid_except(grid_width, grid_height, snake.get_body()).unwrap();
 
     let mut state = GameState::Running;
     let mut timer = 0.0;
-    let move_delay = 0.15; // seconds between moves
     let mut grow = false;
 
     request_new_screen_size(
