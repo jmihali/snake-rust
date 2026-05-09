@@ -1,3 +1,5 @@
+use std::process::exit;
+
 use crate::game::apple::*;
 use crate::game::coordinates::*;
 use crate::game::game_loop::{Error, Result};
@@ -122,12 +124,14 @@ pub async fn run_game_loop(
                 }
             }
             GameState::GameOver => {
-                // press Enter to restart
+                // press Enter to restart, or Q to quit
                 if is_key_pressed(KeyCode::Enter) {
                     initialize_entities(&mut snake, &mut apple, grid_width, grid_height)?;
                     state = GameState::Running;
                     timer = 0.0;
                     grow = false;
+                } else if is_key_pressed(KeyCode::Q) {
+                    exit(0);
                 }
             }
         }
