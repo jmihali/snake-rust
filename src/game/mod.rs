@@ -12,5 +12,4 @@ use apple::*;
 use coordinates::*;
 pub use game_loop::*;
 use orientation::*;
-use rendering::*;
 use snake::*;
