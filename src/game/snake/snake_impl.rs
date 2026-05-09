@@ -46,7 +46,7 @@ impl Snake {
     }
 
     fn extend_head(&mut self) -> Result<()> {
-        let head = self.body.get(0).ok_or(Error::SnakeBodyEmpty)?;
+        let head = self.body.first().ok_or(Error::SnakeBodyEmpty)?;
         let (dx, dy) = self.head_orientation.get_delta();
         let new_head = Coordinates::new(head.get_x() + dx, head.get_y() + dy);
         self.body.insert(0, new_head);
@@ -54,7 +54,7 @@ impl Snake {
     }
 
     pub fn get_head(&self) -> Result<&Coordinates> {
-        if let Some(head) = self.body.get(0) {
+        if let Some(head) = self.body.first() {
             return Ok(head);
         }
         Err(Error::SnakeBodyEmpty)

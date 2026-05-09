@@ -1,5 +1,3 @@
-use rand;
-
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Coordinates {
     x: i32,
@@ -26,11 +24,11 @@ impl Coordinates {
     }
 
     pub fn get_x(&self) -> i32 {
-        return self.x;
+        self.x
     }
 
     pub fn get_y(&self) -> i32 {
-        return self.y;
+        self.y
     }
 }
 
