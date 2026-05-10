@@ -87,6 +87,8 @@ GameLoop *-right- GameState
 Platform -right[hidden]- InputHandler
 
 MacroquadPlatform -up..|> Platform
+RaylibPlatform -up..|> Platform
+
 KeyboardInputHandler -up..|> InputHandler
 AIInputHandler -up..|> InputHandler
 
