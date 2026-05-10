@@ -2,9 +2,14 @@ use std::process::exit;
 
 use crate::game_loop::error::{Error, Result};
 use crate::game_loop::game_core::{Apple, Coordinates, Orientation, Snake};
-use crate::game_loop::rendering::Renderer;
+use crate::game_loop::platform::{MyColor, MyKeyCode, Platform};
 
-use macroquad::prelude::*; // todo: remove macroquad dependency from this file
+pub const RED: MyColor = [1.0, 0.0, 0.0, 1.0];
+pub const GREEN: MyColor = [0.0, 1.0, 0.0, 1.0];
+pub const DARKGREEN: MyColor = [0.0, 0.4, 0.0, 1.0];
+pub const DARKGRAY: MyColor = [0.3, 0.3, 0.3, 1.0];
+pub const BLACK: MyColor = [0.0, 0.0, 0.0, 1.0];
+pub const WHITE: MyColor = [1.0, 1.0, 1.0, 1.0];
 
 #[derive(Default)]
 enum GameState {
@@ -13,7 +18,7 @@ enum GameState {
     GameOver,
 }
 
-pub struct GameLoop<R: Renderer> {
+pub struct GameLoop<P: Platform> {
     snake: Snake,
     apple: Apple,
     state: GameState,
@@ -22,10 +27,10 @@ pub struct GameLoop<R: Renderer> {
     grid_height: u32,
     cell_size: f32,
     move_delay: f32,
-    renderer: R,
+    platform: P,
 }
 
-impl<R: Renderer> GameLoop<R> {
+impl<P: Platform> GameLoop<P> {
     fn initialize_entities(&mut self) -> Result<()> {
         self.snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
         self.apple =
@@ -66,15 +71,64 @@ impl<R: Renderer> GameLoop<R> {
 
         Ok(())
     }
+
+    fn draw_snake(&self) {
+        for (i, coordinates) in self.snake.get_body().iter().enumerate() {
+            let px = coordinates.get_x() as f32 * self.cell_size;
+            let py = coordinates.get_y() as f32 * self.cell_size;
+
+            let color = if i == 0 { GREEN } else { DARKGREEN };
+            self.platform
+                .draw_rectangle(px, py, self.cell_size, self.cell_size, color);
+        }
+    }
+
+    fn draw_apple(&self) {
+        let px =
+            self.apple.get_coordinates().get_x() as f32 * self.cell_size + self.cell_size / 2.0;
+        let py =
+            self.apple.get_coordinates().get_y() as f32 * self.cell_size + self.cell_size / 2.0;
+        self.platform.draw_circle(px, py, self.cell_size / 2.5, RED);
+    }
+
+    fn draw_background_grid(&self) {
+        for i in 0..self.grid_width {
+            for j in 0..self.grid_height {
+                let x = i as f32 * self.cell_size;
+                let y = j as f32 * self.cell_size;
+                self.platform.draw_rectangle_lines(
+                    x,
+                    y,
+                    self.cell_size,
+                    self.cell_size,
+                    1.0,
+                    DARKGRAY,
+                );
+            }
+        }
+    }
+
+    fn get_orientation_from_input(&self) -> Option<Orientation> {
+        if self.platform.is_key_pressed(MyKeyCode::Up) {
+            return Some(Orientation::North);
+        } else if self.platform.is_key_pressed(MyKeyCode::Down) {
+            return Some(Orientation::South);
+        } else if self.platform.is_key_pressed(MyKeyCode::Left) {
+            return Some(Orientation::West);
+        } else if self.platform.is_key_pressed(MyKeyCode::Right) {
+            return Some(Orientation::East);
+        }
+        None
+    }
 }
 
-impl<R: Renderer> GameLoop<R> {
+impl<P: Platform> GameLoop<P> {
     pub fn new(
         grid_width: u32,
         grid_height: u32,
         cell_size: f32,
         move_delay: f32,
-        renderer: R,
+        platform: P,
     ) -> Self {
         Self {
             snake: Snake::default(),
@@ -85,7 +139,7 @@ impl<R: Renderer> GameLoop<R> {
             grid_height,
             cell_size,
             move_delay,
-            renderer,
+            platform,
         }
     }
 
@@ -95,21 +149,21 @@ impl<R: Renderer> GameLoop<R> {
         let mut timer = 0.0;
         self.grow = false;
 
-        self.renderer.set_screen_size(
+        self.platform.set_screen_size(
             self.grid_width as f32 * self.cell_size,
             self.grid_height as f32 * self.cell_size,
         );
 
         loop {
-            clear_background(BLACK);
+            self.platform.clear(BLACK);
 
             match self.state {
                 GameState::Running => {
-                    if let Some(orientation) = get_orientation_from_input() {
+                    if let Some(orientation) = self.get_orientation_from_input() {
                         self.snake.set_head_orientation(orientation);
                     }
 
-                    let dt = get_frame_time();
+                    let dt = self.platform.get_frame_time();
                     timer += dt;
 
                     if timer >= self.move_delay {
@@ -124,36 +178,23 @@ impl<R: Renderer> GameLoop<R> {
                 }
                 GameState::GameOver => {
                     // press Enter to restart, or Q to quit
-                    if is_key_pressed(KeyCode::Enter) {
+                    if self.platform.is_key_pressed(MyKeyCode::Enter) {
                         self.initialize_entities()?;
                         self.state = GameState::Running;
                         timer = 0.0;
                         self.grow = false;
-                    } else if is_key_pressed(KeyCode::Q) {
+                    } else if self.platform.is_key_pressed(MyKeyCode::Q) {
                         exit(0);
                     }
                 }
             }
 
             // draw grid (purely cosmetic)
-            self.renderer
-                .draw_background_grid(self.grid_width, self.grid_height, self.cell_size);
-            self.renderer.draw_snake(&self.snake, self.cell_size);
-            self.renderer.draw_apple(&self.apple, self.cell_size);
-            next_frame().await;
+            self.draw_background_grid();
+            self.draw_snake();
+            self.draw_apple();
+
+            self.platform.wait_for_frame().await;
         }
     }
-}
-
-fn get_orientation_from_input() -> Option<Orientation> {
-    if is_key_pressed(KeyCode::Up) {
-        return Some(Orientation::North);
-    } else if is_key_pressed(KeyCode::Down) {
-        return Some(Orientation::South);
-    } else if is_key_pressed(KeyCode::Left) {
-        return Some(Orientation::West);
-    } else if is_key_pressed(KeyCode::Right) {
-        return Some(Orientation::East);
-    }
-    None
 }
