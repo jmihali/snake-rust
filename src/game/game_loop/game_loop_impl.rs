@@ -8,9 +8,134 @@ use crate::game::rendering::*;
 use crate::game::snake::*;
 use macroquad::prelude::*;
 
+#[derive(Default)]
 enum GameState {
+    #[default]
     Running,
     GameOver,
+}
+
+pub struct GameLoop {
+    snake: Snake,
+    apple: Apple,
+    state: GameState,
+    grow: bool,
+    grid_width: u32,
+    grid_height: u32,
+    cell_size: f32,
+    move_delay: f32,
+}
+
+impl GameLoop {
+    fn initialize_entities(&mut self) -> Result<()> {
+        self.snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
+        self.apple =
+            Apple::random_grid_except(self.grid_width, self.grid_height, self.snake.get_body())
+                .ok_or(Error::FailedToSpawnApple)?;
+        Ok(())
+    }
+
+    fn update_game_state(&mut self) -> Result<()> {
+        // todo: handle case where state is GameOver
+        if self
+            .snake
+            .has_collided_with_edge(self.grid_width, self.grid_height)
+            .map_err(|_| Error::FailedToCheckCollisionWithEdge)?
+            || self
+                .snake
+                .has_collided_with_itself()
+                .map_err(|_| Error::FailedToCheckCollisionWithItself)?
+        {
+            self.state = GameState::GameOver;
+            return Ok(());
+        }
+
+        if self
+            .snake
+            .has_reached_apple(&self.apple)
+            .map_err(|_| Error::FailedToCheckIfHasReachedApple)?
+        {
+            self.grow = true;
+            self.apple =
+                Apple::random_grid_except(self.grid_width, self.grid_height, self.snake.get_body())
+                    .ok_or(Error::FailedToSpawnApple)?;
+        } else {
+            self.grow = false;
+        }
+
+        self.state = GameState::Running;
+
+        Ok(())
+    }
+}
+
+impl GameLoop {
+    pub fn new(grid_width: u32, grid_height: u32, cell_size: f32, move_delay: f32) -> Self {
+        Self {
+            snake: Snake::default(),
+            apple: Apple::default(),
+            state: GameState::Running,
+            grow: false,
+            grid_width: grid_width,
+            grid_height: grid_height,
+            cell_size: cell_size,
+            move_delay: move_delay,
+        }
+    }
+
+    pub async fn run_game_loop(&mut self) -> Result<()> {
+        self.initialize_entities()?;
+
+        let mut timer = 0.0;
+        self.grow = false;
+
+        request_new_screen_size(
+            self.grid_width as f32 * self.cell_size,
+            self.grid_height as f32 * self.cell_size,
+        );
+
+        loop {
+            clear_background(BLACK);
+
+            match self.state {
+                GameState::Running => {
+                    if let Some(orientation) = get_orientation_from_input() {
+                        self.snake.set_head_orientation(orientation);
+                    }
+
+                    let dt = get_frame_time();
+                    timer += dt;
+
+                    if timer >= self.move_delay {
+                        timer = 0.0;
+
+                        self.snake
+                            .advance(self.grow)
+                            .map_err(|_| Error::FailedToAdvanceSnake)?;
+
+                        self.update_game_state()?;
+                    }
+                }
+                GameState::GameOver => {
+                    // press Enter to restart, or Q to quit
+                    if is_key_pressed(KeyCode::Enter) {
+                        self.initialize_entities()?;
+                        self.state = GameState::Running;
+                        timer = 0.0;
+                        self.grow = false;
+                    } else if is_key_pressed(KeyCode::Q) {
+                        exit(0);
+                    }
+                }
+            }
+
+            // draw grid (purely cosmetic)
+            draw_background_grid(self.grid_width, self.grid_height, self.cell_size);
+            draw_snake(&self.snake, self.cell_size);
+            draw_apple(&self.apple, self.cell_size);
+            next_frame().await;
+        }
+    }
 }
 
 fn get_orientation_from_input() -> Option<Orientation> {
@@ -24,122 +149,4 @@ fn get_orientation_from_input() -> Option<Orientation> {
         return Some(Orientation::East);
     }
     None
-}
-
-fn update_game_state(
-    snake: &mut Snake,
-    apple: &mut Apple,
-    grid_width: u32,
-    grid_height: u32,
-    grow: &mut bool,
-    state: &mut GameState,
-) -> Result<()> {
-    // todo: handle case where state is GameOver
-    snake
-        .advance(*grow)
-        .map_err(|_| Error::FailedToAdvanceSnake)?;
-
-    if snake
-        .has_collided_with_edge(grid_width, grid_height)
-        .map_err(|_| Error::FailedToCheckCollisionWithEdge)?
-        || snake
-            .has_collided_with_itself()
-            .map_err(|_| Error::FailedToCheckCollisionWithItself)?
-    {
-        *state = GameState::GameOver;
-        return Ok(());
-    }
-
-    if snake
-        .has_reached_apple(apple)
-        .map_err(|_| Error::FailedToCheckIfHasReachedApple)?
-    {
-        *grow = true;
-        *apple = Apple::random_grid_except(grid_width, grid_height, snake.get_body())
-            .ok_or(Error::FailedToSpawnApple)?;
-    } else {
-        *grow = false;
-    }
-
-    *state = GameState::Running;
-
-    Ok(())
-}
-
-fn initialize_entities(
-    snake: &mut Snake,
-    apple: &mut Apple,
-    grid_width: u32,
-    grid_height: u32,
-) -> Result<()> {
-    *snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
-    *apple = Apple::random_grid_except(grid_width, grid_height, snake.get_body())
-        .ok_or(Error::FailedToSpawnApple)?;
-    Ok(())
-}
-
-pub async fn run_game_loop(
-    grid_width: u32,
-    grid_height: u32,
-    cell_size: f32,
-    move_delay: f32,
-) -> Result<()> {
-    let mut snake = Snake::default();
-    let mut apple = Apple::default();
-
-    initialize_entities(&mut snake, &mut apple, grid_width, grid_height)?;
-
-    let mut state = GameState::Running;
-    let mut timer = 0.0;
-    let mut grow = false;
-
-    request_new_screen_size(
-        grid_width as f32 * cell_size,
-        grid_height as f32 * cell_size,
-    );
-
-    loop {
-        clear_background(BLACK);
-
-        match state {
-            GameState::Running => {
-                if let Some(orientation) = get_orientation_from_input() {
-                    snake.set_head_orientation(orientation);
-                }
-
-                let dt = get_frame_time();
-                timer += dt;
-
-                if timer >= move_delay {
-                    timer = 0.0;
-
-                    update_game_state(
-                        &mut snake,
-                        &mut apple,
-                        grid_width,
-                        grid_height,
-                        &mut grow,
-                        &mut state,
-                    )?;
-                }
-            }
-            GameState::GameOver => {
-                // press Enter to restart, or Q to quit
-                if is_key_pressed(KeyCode::Enter) {
-                    initialize_entities(&mut snake, &mut apple, grid_width, grid_height)?;
-                    state = GameState::Running;
-                    timer = 0.0;
-                    grow = false;
-                } else if is_key_pressed(KeyCode::Q) {
-                    exit(0);
-                }
-            }
-        }
-
-        // draw grid (purely cosmetic)
-        draw_background_grid(grid_width, grid_height, cell_size);
-        draw_snake(&snake, cell_size);
-        draw_apple(&apple, cell_size);
-        next_frame().await;
-    }
 }

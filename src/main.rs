@@ -8,5 +8,7 @@ const MOVE_DELAY: f32 = 0.15; // seconds between moves
 
 #[macroquad::main("Snake in Rust")]
 async fn main() {
-    run_game_loop(GRID_WIDTH, GRID_HEIGHT, CELL_SIZE, MOVE_DELAY).await;
+    let mut game_loop = GameLoop::new(GRID_WIDTH, GRID_HEIGHT, CELL_SIZE, MOVE_DELAY);
+
+    game_loop.run_game_loop().await;
 }
