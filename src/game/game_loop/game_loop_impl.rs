@@ -6,7 +6,8 @@ use crate::game::game_loop::{Error, Result};
 use crate::game::orientation::*;
 use crate::game::rendering::*;
 use crate::game::snake::*;
-use macroquad::prelude::*;
+
+use macroquad::prelude::*; // todo: remove macroquad dependency from this file
 
 #[derive(Default)]
 enum GameState {
@@ -15,7 +16,7 @@ enum GameState {
     GameOver,
 }
 
-pub struct GameLoop {
+pub struct GameLoop<R: Renderer> {
     snake: Snake,
     apple: Apple,
     state: GameState,
@@ -24,9 +25,10 @@ pub struct GameLoop {
     grid_height: u32,
     cell_size: f32,
     move_delay: f32,
+    renderer: R,
 }
 
-impl GameLoop {
+impl<R: Renderer> GameLoop<R> {
     fn initialize_entities(&mut self) -> Result<()> {
         self.snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
         self.apple =
@@ -69,17 +71,24 @@ impl GameLoop {
     }
 }
 
-impl GameLoop {
-    pub fn new(grid_width: u32, grid_height: u32, cell_size: f32, move_delay: f32) -> Self {
+impl<R: Renderer> GameLoop<R> {
+    pub fn new(
+        grid_width: u32,
+        grid_height: u32,
+        cell_size: f32,
+        move_delay: f32,
+        renderer: R,
+    ) -> Self {
         Self {
             snake: Snake::default(),
             apple: Apple::default(),
             state: GameState::Running,
             grow: false,
-            grid_width: grid_width,
-            grid_height: grid_height,
-            cell_size: cell_size,
-            move_delay: move_delay,
+            grid_width,
+            grid_height,
+            cell_size,
+            move_delay,
+            renderer,
         }
     }
 
@@ -89,7 +98,7 @@ impl GameLoop {
         let mut timer = 0.0;
         self.grow = false;
 
-        request_new_screen_size(
+        self.renderer.set_screen_size(
             self.grid_width as f32 * self.cell_size,
             self.grid_height as f32 * self.cell_size,
         );
@@ -130,9 +139,10 @@ impl GameLoop {
             }
 
             // draw grid (purely cosmetic)
-            draw_background_grid(self.grid_width, self.grid_height, self.cell_size);
-            draw_snake(&self.snake, self.cell_size);
-            draw_apple(&self.apple, self.cell_size);
+            self.renderer
+                .draw_background_grid(self.grid_width, self.grid_height, self.cell_size);
+            self.renderer.draw_snake(&self.snake, self.cell_size);
+            self.renderer.draw_apple(&self.apple, self.cell_size);
             next_frame().await;
         }
     }

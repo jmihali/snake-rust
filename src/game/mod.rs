@@ -8,8 +8,9 @@ mod rendering;
 mod snake;
 
 // -- Flatten
-use apple::*;
-use coordinates::*;
+pub use apple::*;
+pub use coordinates::*;
 pub use game_loop::*;
-use orientation::*;
-use snake::*;
+pub use orientation::*;
+pub use rendering::*;
+pub use snake::*;
