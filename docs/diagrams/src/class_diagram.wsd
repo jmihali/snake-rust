@@ -41,7 +41,7 @@ Enum Orientation {
 }
 
 Class GameLoop {
-- renderer: Renderer
+- platform: Platform
 - input_handler: InputHandler
 - snake: Snake
 - apple: Apple
@@ -57,7 +57,7 @@ Enum GameState {
     + GameOver
 }
 
-Interface Renderer {
+Interface Platform {
 + draw_snake(snake: Snake)
 + draw_apple(apple: Apple)
 + draw_background_grid(width: u32, height: u32)
@@ -76,13 +76,13 @@ Apple o- Coordinates
 GameLoop -up-o Snake
 GameLoop -up-o Apple
 
-GameLoop -down-> Renderer
+GameLoop -down-> Platform
 GameLoop -down-> InputHandler
 
 GameLoop *-right- GameState
-Renderer -right[hidden]- InputHandler
+Platform -right[hidden]- InputHandler
 
-MacroquadRenderer -up..|> Renderer
+MacroquadPlatform -up..|> Platform
 KeyboardInputHandler -up..|> InputHandler
 AIInputHandler -up..|> InputHandler
 
