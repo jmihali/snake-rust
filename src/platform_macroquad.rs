@@ -4,7 +4,7 @@ use macroquad;
 
 pub struct MacroquadPlatform {}
 
-#[async_trait]
+#[async_trait(?Send)]
 impl Platform for MacroquadPlatform {
     fn draw_rectangle(&self, x: f32, y: f32, width: f32, height: f32, color: MyColor) {
         macroquad::shapes::draw_rectangle(

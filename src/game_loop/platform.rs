@@ -11,7 +11,7 @@ pub enum MyKeyCode {
     Q,
 }
 
-#[async_trait] // Use the async-trait crate if you want async in traits
+#[async_trait(?Send)] // Use the async-trait crate if you want async in traits
 pub trait Platform {
     // Rendering
     fn draw_rectangle(&self, x: f32, y: f32, width: f32, height: f32, color: MyColor);
