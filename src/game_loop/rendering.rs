@@ -1,4 +1,4 @@
-use crate::game::{Apple, Snake};
+use crate::game_loop::game_core::{Apple, Snake};
 
 pub trait Renderer {
     fn draw_snake(&self, snake: &Snake, cell_size: f32);

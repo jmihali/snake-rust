@@ -1,7 +1,5 @@
-use crate::game::Apple;
-use crate::game::Coordinates;
-use crate::game::Orientation;
-use crate::game::snake::{Error, Result};
+use crate::game_loop::game_core::snake::{Error, Result};
+use crate::game_loop::game_core::{Apple, Coordinates, Orientation};
 
 #[derive(Debug, Default, PartialEq)]
 pub struct Snake {

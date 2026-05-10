@@ -1,6 +1,6 @@
-use crate::game::Apple;
-use crate::game::Renderer;
-use crate::game::Snake;
+use crate::game_loop::Apple;
+use crate::game_loop::Renderer;
+use crate::game_loop::Snake;
 use macroquad::color::*;
 use macroquad::shapes::*;
 use macroquad::window::*;

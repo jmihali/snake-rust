@@ -1,11 +1,8 @@
 use std::process::exit;
 
-use crate::game::apple::*;
-use crate::game::coordinates::*;
-use crate::game::game_loop::{Error, Result};
-use crate::game::orientation::*;
-use crate::game::rendering::*;
-use crate::game::snake::*;
+use crate::game_loop::error::{Error, Result};
+use crate::game_loop::game_core::{Apple, Coordinates, Orientation, Snake};
+use crate::game_loop::rendering::Renderer;
 
 use macroquad::prelude::*; // todo: remove macroquad dependency from this file
 

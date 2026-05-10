@@ -1,7 +1,7 @@
-mod game;
+mod game_loop;
 mod macroquad_rendering;
 
-use game::*;
+use game_loop::GameLoop;
 use macroquad_rendering::MacroquadRenderer;
 
 const CELL_SIZE: f32 = 20.0;

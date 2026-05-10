@@ -1,4 +1,4 @@
-use crate::game::Coordinates;
+use crate::game_loop::game_core::Coordinates;
 
 #[derive(Default)]
 pub struct Apple {
@@ -51,8 +51,8 @@ impl Apple {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::game::Orientation;
-    use crate::game::Snake;
+    use crate::game_loop::game_core::Orientation;
+    use crate::game_loop::game_core::Snake;
 
     #[test]
     fn apple_new() {
