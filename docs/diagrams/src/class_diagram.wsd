@@ -1,0 +1,89 @@
+@startuml joan
+
+Class Snake {
+- body: Vec<Coordinates>
+- head_orientation: Orientation
++ new(coordinates: Coordinates, orientation: Orientation) -> Self
++ from_body(body: Vec<Coordinates>, head_orientation: Orientation) -> Result<Self>
++ get_head(&self) -> Result<&Coordinates>
++ set_head_orientation(&mut self, orientation: Orientation) 
++ advance(&mut self, grow: bool) -> Result<()>
++ get_body(&self) -> &[Coordinates]
++ has_collided_with_edge(&self, grid_width: u32, grid_height: u32) -> Result<bool>
++ has_collided_with_itself(&self) -> Result<bool> {
++ has_reached_apple(&self, apple: &Apple) -> Result<bool>
+}
+
+Class Apple {
+- coordinates: Coordinates
++ new(x: u32, y: u32) -> Self
++ random_grid_except(max_x: u32, max_y: u32, exceptions: &[Coordinates]) -> Option<Self>
++ get_coordinates(&self) -> &Coordinates
+}
+
+Class Coordinates {
+- x: i32
+- y: i32
++ new(x: i32, y: i32) -> Self
++ random(max_x: i32, max_y: i32) -> Self
++ is_contiguous_to(&self, other: &Coordinates) -> bool
++ get_x(&self) -> i32
++ get_y(&self) -> i32
+}
+
+Enum Orientation {
+    + NORTH
+    + SOUTH
+    + EAST
+    + WEST
+    + is_opposite(&self, other: Orientation) -> bool
+    + get_delta(&self) -> (i32, i32)
+}
+
+Class GameLoop {
+- renderer: Renderer
+- input_handler: InputHandler
+- snake: Snake
+- apple: Apple
+- grid_width: u32
+- grid_height: u32
+- state: GameState
+- initialize_entities()
++ run()
+}
+
+Enum GameState {
+    + Running
+    + GameOver
+}
+
+Interface Renderer {
++ draw_snake(snake: Snake)
++ draw_apple(apple: Apple)
++ draw_background_grid(width: u32, height: u32)
++ set_screen_size(width: u32, height: u32)
+}
+
+Interface InputHandler {
++ get_orientation_from_input() -> Orientation
+}
+
+Snake -> Apple
+Snake o-- Coordinates
+Snake o-- Orientation
+Apple o- Coordinates
+
+GameLoop -up-o Snake
+GameLoop -up-o Apple
+
+GameLoop -down-> Renderer
+GameLoop -down-> InputHandler
+
+GameLoop *-right- GameState
+Renderer -right[hidden]- InputHandler
+
+MacroquadRenderer -up..|> Renderer
+KeyboardInputHandler -up..|> InputHandler
+AIInputHandler -up..|> InputHandler
+
+@enduml
