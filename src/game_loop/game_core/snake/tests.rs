@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use crate::game::Orientation;
-    use crate::game::apple;
-    use crate::game::apple::Apple;
-    use crate::game::coordinates::*;
-    use crate::game::snake::*;
+    use crate::game_loop::game_core::Orientation;
+    use crate::game_loop::game_core::apple;
+    use crate::game_loop::game_core::apple::Apple;
+    use crate::game_loop::game_core::coordinates::*;
+    use crate::game_loop::game_core::snake::*;
 
     #[test]
     fn constructor_from_contiguous_body() {
