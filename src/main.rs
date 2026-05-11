@@ -13,8 +13,8 @@ use platform_raylib::RaylibPlatform;
 #[cfg(feature = "raylib_support")]
 use tokio::runtime::Runtime;
 
-mod naive_random_ai_model;
-use naive_random_ai_model::NaiveRandomAIModel;
+mod ai_model_naive_random;
+use ai_model_naive_random::AIModelNaiveRandom;
 
 const CELL_SIZE: f32 = 20.0;
 const GRID_WIDTH: u32 = 20;
@@ -30,7 +30,7 @@ async fn main() {
     #[cfg(feature = "raylib_support")]
     let platform = RaylibPlatform::new(800, 800, "Snake Game - Raylib Edition");
 
-    let ai_model = NaiveRandomAIModel::new();
+    let ai_model = AIModelNaiveRandom::new();
     let mut game_loop = GameLoop::new(
         GRID_WIDTH,
         GRID_HEIGHT,

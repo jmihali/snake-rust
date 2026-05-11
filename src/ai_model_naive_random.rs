@@ -2,9 +2,9 @@ use rand::random_bool;
 
 use crate::game_loop::{AIModel, Apple, Orientation, Snake};
 
-pub struct NaiveRandomAIModel {}
+pub struct AIModelNaiveRandom {}
 
-impl AIModel for NaiveRandomAIModel {
+impl AIModel for AIModelNaiveRandom {
     fn decide_next_move(
         &self,
         snake: &Snake,
@@ -71,7 +71,7 @@ impl AIModel for NaiveRandomAIModel {
     }
 }
 
-impl NaiveRandomAIModel {
+impl AIModelNaiveRandom {
     pub fn new() -> Self {
         Self {}
     }
