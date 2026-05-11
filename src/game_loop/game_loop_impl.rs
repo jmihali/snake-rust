@@ -163,19 +163,10 @@ impl<P: Platform, A: AIModel> GameLoop<P, A> {
 
             match self.state {
                 GameState::Running => {
-                    let orientation = if let Some(ai) = &self.ai_model {
-                        ai.decide_next_move(
-                            &self.snake,
-                            &self.apple,
-                            self.grid_width,
-                            self.grid_height,
-                        )
-                    } else {
-                        self.get_orientation_from_input()
-                    };
-
-                    if let Some(or) = orientation {
-                        self.snake.set_head_orientation(or);
+                    if self.ai_model.is_none() {
+                        if let Some(orientation) = self.get_orientation_from_input() {
+                            self.snake.set_head_orientation(orientation);
+                        }
                     }
 
                     let dt = self.platform.get_frame_time();
@@ -183,6 +174,17 @@ impl<P: Platform, A: AIModel> GameLoop<P, A> {
 
                     if timer >= self.move_delay {
                         timer = 0.0;
+
+                        if let Some(ai) = &self.ai_model {
+                            if let Some(orientation) = ai.decide_next_move(
+                                &self.snake,
+                                &self.apple,
+                                self.grid_width,
+                                self.grid_height,
+                            ) {
+                                self.snake.set_head_orientation(orientation);
+                            }
+                        }
 
                         self.snake
                             .advance(self.grow)
