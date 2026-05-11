@@ -1,5 +1,6 @@
 use std::process::exit;
 
+use crate::game_loop::ai_model::{self, AIModel};
 use crate::game_loop::error::{Error, Result};
 use crate::game_loop::game_core::{Apple, Coordinates, Orientation, Snake};
 use crate::game_loop::platform::{MyColor, MyKeyCode, Platform};
@@ -18,7 +19,7 @@ enum GameState {
     GameOver,
 }
 
-pub struct GameLoop<P: Platform> {
+pub struct GameLoop<P: Platform, A: AIModel> {
     snake: Snake,
     apple: Apple,
     state: GameState,
@@ -28,9 +29,10 @@ pub struct GameLoop<P: Platform> {
     cell_size: f32,
     move_delay: f32,
     platform: P,
+    ai_model: Option<A>,
 }
 
-impl<P: Platform> GameLoop<P> {
+impl<P: Platform, A: AIModel> GameLoop<P, A> {
     fn initialize_entities(&mut self) -> Result<()> {
         self.snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
         self.apple =
@@ -122,13 +124,14 @@ impl<P: Platform> GameLoop<P> {
     }
 }
 
-impl<P: Platform> GameLoop<P> {
+impl<P: Platform, A: AIModel> GameLoop<P, A> {
     pub fn new(
         grid_width: u32,
         grid_height: u32,
         cell_size: f32,
         move_delay: f32,
         platform: P,
+        ai_model: Option<A>,
     ) -> Self {
         Self {
             snake: Snake::default(),
@@ -140,6 +143,7 @@ impl<P: Platform> GameLoop<P> {
             cell_size,
             move_delay,
             platform,
+            ai_model,
         }
     }
 
@@ -159,8 +163,19 @@ impl<P: Platform> GameLoop<P> {
 
             match self.state {
                 GameState::Running => {
-                    if let Some(orientation) = self.get_orientation_from_input() {
-                        self.snake.set_head_orientation(orientation);
+                    let orientation = if let Some(ai) = &self.ai_model {
+                        ai.decide_next_move(
+                            &self.snake,
+                            &self.apple,
+                            self.grid_width,
+                            self.grid_height,
+                        )
+                    } else {
+                        self.get_orientation_from_input()
+                    };
+
+                    if let Some(or) = orientation {
+                        self.snake.set_head_orientation(or);
                     }
 
                     let dt = self.platform.get_frame_time();
