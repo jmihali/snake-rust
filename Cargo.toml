@@ -7,7 +7,12 @@ edition = "2024"
 async-trait = "0.1.89"
 clippy = "0.0.302"
 derive_more = { version = "2.1.1", features = ["from", "display"] }
-macroquad = "0.4.14"
+macroquad = { version = "0.4.14", optional = true}
 rand = "0.10.1"
-raylib = "5.5.1"
+raylib = { version = "5.5.1", optional = true }
 tokio = { version = "1.52.3", features = ["rt", "macros"] }
+
+[features]
+default = ["macroquad_support"]
+macroquad_support = ["dep:macroquad"]
+raylib_support = ["dep:raylib"]
