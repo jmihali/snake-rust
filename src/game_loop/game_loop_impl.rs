@@ -22,7 +22,7 @@ enum GameEvent {
     FoodReached,
 }
 
-pub struct GameLoop<P: Platform, A: SnakeAlgorithm> {
+pub struct GameLoop<P: Platform> {
     snake: Snake,
     apple: Apple,
     state: GameState,
@@ -31,10 +31,10 @@ pub struct GameLoop<P: Platform, A: SnakeAlgorithm> {
     cell_size: f32,
     move_delay: f32,
     platform: P,
-    snake_algorithm: Option<A>,
+    snake_algorithm: Option<Box<dyn SnakeAlgorithm>>,
 }
 
-impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
+impl<P: Platform> GameLoop<P> {
     fn initialize_entities(&mut self) -> Result<()> {
         self.snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
         self.apple =
@@ -117,14 +117,14 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
     }
 }
 
-impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
+impl<P: Platform> GameLoop<P> {
     pub fn new(
         grid_width: u32,
         grid_height: u32,
         cell_size: f32,
         move_delay: f32,
         platform: P,
-        snake_algorithm: Option<A>,
+        snake_algorithm: Option<Box<dyn SnakeAlgorithm>>,
     ) -> Self {
         Self {
             snake: Snake::default(),

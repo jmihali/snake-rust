@@ -18,6 +18,8 @@ mod snake_algorithm_naive;
 use clap::Parser;
 use snake_algorithm_bfs::SnakeAlgorithmBFS;
 
+use crate::game_loop::SnakeAlgorithm;
+
 const CELL_SIZE: f32 = 20.0;
 
 #[derive(Parser, Debug)]
@@ -44,8 +46,8 @@ async fn main() {
     #[cfg(feature = "raylib_support")]
     let platform = RaylibPlatform::new(800, 800, "Snake Game - Raylib Edition");
 
-    let snake_algorithm = if args.ai {
-        Some(SnakeAlgorithmBFS::new())
+    let snake_algorithm: Option<Box<dyn SnakeAlgorithm>> = if args.ai {
+        Some(Box::new(SnakeAlgorithmBFS::new()))
     } else {
         None
     };
@@ -59,7 +61,7 @@ async fn main() {
         _ => 0.15,
     };
 
-    let mut game_loop: GameLoop<MacroquadPlatform, _> = GameLoop::new(
+    let mut game_loop: GameLoop<MacroquadPlatform> = GameLoop::new(
         args.grid_width,
         args.grid_height,
         CELL_SIZE,
