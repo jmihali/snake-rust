@@ -220,6 +220,10 @@ impl AIModelBFS {
         grid_width: u32,
         grid_height: u32,
     ) -> bool {
+        if start == goal {
+            return true;
+        }
+
         self.bfs_with_obstacles(start, goal, obstacles, grid_width, grid_height)
             .is_some()
     }
@@ -246,6 +250,37 @@ impl AIModelBFS {
             current = prev;
         }
         None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashSet;
+
+    #[test]
+    fn can_reach_when_start_and_goal_are_same() {
+        let ai = AIModelBFS::new();
+        assert!(ai.can_reach((2, 2), (2, 2), &HashSet::new(), 5, 5));
+    }
+
+    #[test]
+    fn moving_into_tail_is_considered_safe() {
+        let snake = Snake::from_body(
+            vec![
+                Coordinates::new(1, 1),
+                Coordinates::new(1, 2),
+                Coordinates::new(2, 2),
+                Coordinates::new(2, 1),
+            ],
+            Orientation::North,
+        )
+        .unwrap();
+
+        let ai = AIModelBFS::new();
+        let apple = Apple::new(0, 0);
+
+        assert!(ai.is_move_safe(&snake, Orientation::East, apple.get_coordinates(), 5, 5));
     }
 }
 
