@@ -24,8 +24,10 @@ impl Platform for RaylibPlatform {
             color[0], color[1], color[2], color[3],
         )));
 
-        // We "cheat" the lifetimes by using unsafe to store the handle.
-        // This is necessary because your trait is imperative, but Raylib is scope-based.
+        // SAFETY: The draw handle is stored only for the duration of the frame,
+        // between clear() and wait_for_frame(). The lifetime is extended to 'static
+        // to satisfy the RefCell storage, but the handle is always dropped before
+        // the underlying RaylibHandle borrow ends, preventing use-after-free.
         unsafe {
             let static_d =
                 std::mem::transmute::<RaylibDrawHandle<'_>, RaylibDrawHandle<'static>>(d);
