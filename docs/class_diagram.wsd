@@ -1,0 +1,97 @@
+@startuml joan
+
+Class Snake {
+- body: Vec<Coordinates>
+- head_orientation: Orientation
++ new(coordinates: Coordinates, orientation: Orientation) -> Self
++ get_head(&self) -> Result<&Coordinates>
++ set_head_orientation(&mut self, orientation: Orientation)
++ get_head_orientation(&self) -> Orientation
++ advance(&mut self, grow: bool) -> Result<()>
++ get_body(&self) -> &[Coordinates]
++ has_collided_with_edge(&self, grid_width: u32, grid_height: u32) -> Result<bool>
++ has_collided_with_itself(&self) -> Result<bool>
++ has_reached_apple(&self, apple: &Apple) -> Result<bool>
+}
+
+Class Apple {
+- coordinates: Coordinates
++ new(x: u32, y: u32) -> Self
++ random_grid_except(max_x: u32, max_y: u32, exceptions: &[Coordinates]) -> Option<Self>
++ get_coordinates(&self) -> &Coordinates
+}
+
+Class Coordinates {
+- x: i32
+- y: i32
++ new(x: i32, y: i32) -> Self
++ random(max_x: i32, max_y: i32) -> Self
++ is_contiguous_to(&self, other: &Coordinates) -> bool
++ get_x(&self) -> i32
++ get_y(&self) -> i32
+}
+
+Enum Orientation {
+    + North
+    + South
+    + East
+    + West
+    + is_opposite(&self, other: Orientation) -> bool
+    + get_delta(&self) -> (i32, i32)
+}
+
+Class GameLoop {
+- snake: Snake
+- apple: Apple
+- state: GameState
+- grid_width: u32
+- grid_height: u32
+- cell_size: f32
+- move_delay: f32
+- platform: Platform
+- snake_algorithm: Option<Box<dyn SnakeAlgorithm>>
++ initialize_entities() -> Result<()>
++ run_game_loop() -> Result<()>
++ get_orientation_from_input() -> Option<Orientation>
+}
+
+Enum GameState {
+    + Running
+    + GameOver
+    + GameWon
+}
+
+Interface Platform {
++ draw_rectangle(&self, x: f32, y: f32, width: f32, height: f32, color: MyColor)
++ draw_circle(&self, x: f32, y: f32, radius: f32, color: MyColor)
++ draw_rectangle_lines(&self, x: f32, y: f32, width: f32, height: f32, thickness: f32, color: MyColor)
++ draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: MyColor)
++ get_text_width(&self, text: &str, font_size: f32) -> f32
++ set_screen_size(&self, width: f32, height: f32)
++ clear(&self, color: MyColor)
++ get_frame_time(&self) -> f32
++ is_key_pressed(&self, key: MyKeyCode) -> bool
++ wait_for_frame(&self)
+}
+
+Interface SnakeAlgorithm {
++ decide_next_move(&self, snake: &Snake, apple: &Apple, grid_width: u32, grid_height: u32) -> Option<Orientation>
+}
+
+Snake -> Apple
+Snake o-- Coordinates
+Snake o-- Orientation
+Apple o- Coordinates
+
+GameLoop -up-o Snake
+GameLoop -up-o Apple
+GameLoop *-down- Platform
+GameLoop *-down- SnakeAlgorithm
+GameLoop *-right- GameState
+
+MacroquadPlatform -up..|> Platform
+RaylibPlatform -up..|> Platform
+
+SnakeAlgorithmBFS -up..|> SnakeAlgorithm
+
+@enduml
