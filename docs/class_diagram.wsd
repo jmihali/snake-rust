@@ -4,9 +4,9 @@ Class Snake {
 - body: Vec<Coordinates>
 - head_orientation: Orientation
 + new(coordinates: Coordinates, orientation: Orientation) -> Self
-+ from_body(body: Vec<Coordinates>, head_orientation: Orientation) -> Result<Self>
 + get_head(&self) -> Result<&Coordinates>
 + set_head_orientation(&mut self, orientation: Orientation)
++ get_head_orientation(&self) -> Orientation
 + advance(&mut self, grow: bool) -> Result<()>
 + get_body(&self) -> &[Coordinates]
 + has_collided_with_edge(&self, grid_width: u32, grid_height: u32) -> Result<bool>
@@ -85,8 +85,8 @@ Apple o- Coordinates
 
 GameLoop -up-o Snake
 GameLoop -up-o Apple
-GameLoop -down-> Platform
-GameLoop -down-> SnakeAlgorithm
+GameLoop *-down- Platform
+GameLoop *-down- SnakeAlgorithm
 GameLoop *-right- GameState
 
 MacroquadPlatform -up..|> Platform
