@@ -1,6 +1,5 @@
 use crate::game_loop::{MyColor, MyKeyCode, Platform};
 use async_trait::async_trait;
-use macroquad;
 
 pub struct MacroquadPlatform {}
 

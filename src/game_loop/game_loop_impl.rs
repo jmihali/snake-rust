@@ -26,10 +26,10 @@ impl<P: Platform> GameLoop<P> {
 
             match self.state {
                 GameState::Running => {
-                    if self.snake_algorithm.is_none() {
-                        if let Some(orientation) = self.get_orientation_from_input() {
-                            new_head_orientation = orientation;
-                        }
+                    if self.snake_algorithm.is_none()
+                        && let Some(orientation) = self.get_orientation_from_input()
+                    {
+                        new_head_orientation = orientation;
                     }
 
                     let dt = self.platform.get_frame_time();

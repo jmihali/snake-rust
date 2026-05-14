@@ -31,10 +31,10 @@ impl SnakeAlgorithm for SnakeAlgorithmBFS {
         }
 
         // 2. Fallback: Follow tail if we have one
-        if snake.get_body().len() > 1 {
-            if let Some(tail_move) = self.find_path_to_tail(snake, grid_width, grid_height) {
-                return Some(tail_move);
-            }
+        if snake.get_body().len() > 1
+            && let Some(tail_move) = self.find_path_to_tail(snake, grid_width, grid_height)
+        {
+            return Some(tail_move);
         }
 
         // 3. Final Fallback: Just don't hit a wall or yourself
