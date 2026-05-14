@@ -9,6 +9,7 @@ pub enum Error {
     FailedToCheckCollisionWithEdge,
     FailedToAdvanceSnake,
     FailedToCheckIfHasReachedApple,
+    ExpectedGameStateRunning,
 }
 
 // region:    --- Error Boilerplate

@@ -11,11 +11,12 @@ pub const DARKGREEN: MyColor = [0.0, 0.4, 0.0, 1.0];
 pub const DARKGRAY: MyColor = [0.3, 0.3, 0.3, 1.0];
 pub const BLACK: MyColor = [0.0, 0.0, 0.0, 1.0];
 
-#[derive(Default)]
+#[derive(Default, PartialEq, Eq)]
 enum GameState {
     #[default]
     Running,
     GameOver,
+    GameWon,
 }
 
 pub struct GameLoop<P: Platform, A: SnakeAlgorithm> {
@@ -40,8 +41,11 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
         Ok(())
     }
 
-    fn update_game_state(&mut self) -> Result<()> {
-        // todo: handle case where state is GameOver
+    fn update_game_state_running(&mut self) -> Result<()> {
+        if self.state != GameState::Running {
+            return Err(Error::ExpectedGameStateRunning);
+        }
+
         if self
             .snake
             .has_collided_with_edge(self.grid_width, self.grid_height)
@@ -52,23 +56,23 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
                 .map_err(|_| Error::FailedToCheckCollisionWithItself)?
         {
             self.state = GameState::GameOver;
-            return Ok(());
-        }
-
-        if self
+        } else if self
             .snake
             .has_reached_apple(&self.apple)
             .map_err(|_| Error::FailedToCheckIfHasReachedApple)?
         {
             self.grow = true;
-            self.apple =
+            if let Some(apple) =
                 Apple::random_grid_except(self.grid_width, self.grid_height, self.snake.get_body())
-                    .ok_or(Error::FailedToSpawnApple)?;
+            {
+                self.apple = apple;
+            } else {
+                // if no apple can be spawned, it means that there is no space in the grid anymore
+                self.state = GameState::GameWon;
+            }
         } else {
             self.grow = false;
         }
-
-        self.state = GameState::Running;
 
         Ok(())
     }
@@ -196,10 +200,16 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
                             .advance(self.grow)
                             .map_err(|_| Error::FailedToAdvanceSnake)?;
 
-                        self.update_game_state()?;
+                        self.update_game_state_running()?;
                     }
                 }
-                GameState::GameOver => {
+                GameState::GameOver | GameState::GameWon => {
+                    if self.state == GameState::GameWon {
+                        println!(
+                            "CONGRATULATIONS! YOU WON THE GAME! :) Press Enter to restart or Q to exit"
+                        );
+                    }
+
                     // press Enter to restart
                     if self.platform.is_key_pressed(MyKeyCode::Enter) {
                         self.initialize_entities()?;
