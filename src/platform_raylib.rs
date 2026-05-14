@@ -98,7 +98,7 @@ impl Platform for RaylibPlatform {
     }
 
     fn get_text_width(&self, text: &str, font_size: f32) -> f32 {
-        raylib::text::measure_text(text, font_size as i32)
+        self.rl.borrow().measure_text(text, font_size as i32) as f32
     }
 
     fn set_screen_size(&self, width: f32, height: f32) {
