@@ -152,6 +152,7 @@ impl<P: Platform, A: AIModel> GameLoop<P, A> {
 
         let mut timer = 0.0;
         self.grow = false;
+        let mut new_head_orientation = self.snake.get_head_orientation();
 
         self.platform.set_screen_size(
             self.grid_width as f32 * self.cell_size,
@@ -170,7 +171,7 @@ impl<P: Platform, A: AIModel> GameLoop<P, A> {
                 GameState::Running => {
                     if self.ai_model.is_none() {
                         if let Some(orientation) = self.get_orientation_from_input() {
-                            self.snake.set_head_orientation(orientation);
+                            new_head_orientation = orientation;
                         }
                     }
 
@@ -187,10 +188,11 @@ impl<P: Platform, A: AIModel> GameLoop<P, A> {
                                 self.grid_width,
                                 self.grid_height,
                             ) {
-                                self.snake.set_head_orientation(orientation);
+                                new_head_orientation = orientation;
                             }
                         }
 
+                        self.snake.set_head_orientation(new_head_orientation);
                         self.snake
                             .advance(self.grow)
                             .map_err(|_| Error::FailedToAdvanceSnake)?;

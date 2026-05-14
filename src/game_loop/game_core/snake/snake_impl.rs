@@ -67,6 +67,10 @@ impl Snake {
         }
     }
 
+    pub fn get_head_orientation(&self) -> Orientation {
+        self.head_orientation
+    }
+
     pub fn advance(&mut self, grow: bool) -> Result<()> {
         self.extend_head()?;
         if !grow {
