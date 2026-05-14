@@ -1,5 +1,3 @@
-use std::process::exit;
-
 use crate::game_loop::error::{Error, Result};
 use crate::game_loop::game_core::{Apple, Coordinates, Orientation, Snake};
 use crate::game_loop::platform::{MyColor, MyKeyCode, Platform};
@@ -19,11 +17,15 @@ enum GameState {
     GameWon,
 }
 
+enum GameEvent {
+    Collision,
+    FoodReached,
+}
+
 pub struct GameLoop<P: Platform, A: SnakeAlgorithm> {
     snake: Snake,
     apple: Apple,
     state: GameState,
-    grow: bool,
     grid_width: u32,
     grid_height: u32,
     cell_size: f32,
@@ -41,11 +43,7 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
         Ok(())
     }
 
-    fn update_game_state_running(&mut self) -> Result<()> {
-        if self.state != GameState::Running {
-            return Err(Error::ExpectedGameStateRunning);
-        }
-
+    fn check_for_game_event(&self) -> Result<Option<GameEvent>> {
         if self
             .snake
             .has_collided_with_edge(self.grid_width, self.grid_height)
@@ -55,26 +53,18 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
                 .has_collided_with_itself()
                 .map_err(|_| Error::FailedToCheckCollisionWithItself)?
         {
-            self.state = GameState::GameOver;
-        } else if self
+            return Ok(Some(GameEvent::Collision));
+        }
+
+        if self
             .snake
             .has_reached_apple(&self.apple)
             .map_err(|_| Error::FailedToCheckIfHasReachedApple)?
         {
-            self.grow = true;
-            if let Some(apple) =
-                Apple::random_grid_except(self.grid_width, self.grid_height, self.snake.get_body())
-            {
-                self.apple = apple;
-            } else {
-                // if no apple can be spawned, it means that there is no space in the grid anymore
-                self.state = GameState::GameWon;
-            }
-        } else {
-            self.grow = false;
+            return Ok(Some(GameEvent::FoodReached));
         }
 
-        Ok(())
+        Ok(None)
     }
 
     fn draw_snake(&self) {
@@ -140,7 +130,6 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
             snake: Snake::default(),
             apple: Apple::default(),
             state: GameState::Running,
-            grow: false,
             grid_width,
             grid_height,
             cell_size,
@@ -154,7 +143,7 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
         self.initialize_entities()?;
 
         let mut timer = 0.0;
-        self.grow = false;
+        let mut grow = false;
         let mut new_head_orientation = self.snake.get_head_orientation();
 
         self.platform.set_screen_size(
@@ -184,23 +173,43 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
                     if timer >= self.move_delay {
                         timer -= self.move_delay;
 
-                        if let Some(algorithm) = &self.snake_algorithm {
-                            if let Some(orientation) = algorithm.decide_next_move(
+                        if let Some(algorithm) = &self.snake_algorithm
+                            && let Some(orientation) = algorithm.decide_next_move(
                                 &self.snake,
                                 &self.apple,
                                 self.grid_width,
                                 self.grid_height,
-                            ) {
-                                new_head_orientation = orientation;
-                            }
+                            )
+                        {
+                            new_head_orientation = orientation;
                         }
 
                         self.snake.set_head_orientation(new_head_orientation);
                         self.snake
-                            .advance(self.grow)
+                            .advance(grow)
                             .map_err(|_| Error::FailedToAdvanceSnake)?;
+                        grow = false;
 
-                        self.update_game_state_running()?;
+                        if let Some(game_event) = self.check_for_game_event()? {
+                            match game_event {
+                                GameEvent::Collision => {
+                                    self.state = GameState::GameOver;
+                                }
+                                GameEvent::FoodReached => {
+                                    if let Some(apple) = Apple::random_grid_except(
+                                        self.grid_width,
+                                        self.grid_height,
+                                        self.snake.get_body(),
+                                    ) {
+                                        self.apple = apple;
+                                        grow = true;
+                                    } else {
+                                        // if no apple can be spawned, it means that there is no space in the grid anymore
+                                        self.state = GameState::GameWon;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 GameState::GameOver | GameState::GameWon => {
@@ -215,7 +224,7 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
                         self.initialize_entities()?;
                         self.state = GameState::Running;
                         timer = 0.0;
-                        self.grow = false;
+                        grow = false;
                     }
                 }
             }
