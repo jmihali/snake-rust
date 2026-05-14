@@ -16,6 +16,7 @@ impl Snake {
         }
     }
 
+    #[allow(unused)]
     pub fn from_body(body: Vec<Coordinates>, head_orientation: Orientation) -> Result<Self> {
         // Use .iter() and .zip() to simulate windows without cloning or make_contiguous
         let is_contiguous = body

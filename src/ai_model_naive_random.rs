@@ -1,3 +1,5 @@
+#![allow(warnings)]
+
 use rand::random_bool;
 
 use crate::game_loop::{AIModel, Apple, Orientation, Snake};
@@ -9,8 +11,8 @@ impl AIModel for AIModelNaiveRandom {
         &self,
         snake: &Snake,
         apple: &Apple,
-        grid_width: u32,
-        grid_height: u32,
+        _grid_width: u32,
+        _grid_height: u32,
     ) -> Option<Orientation> {
         let dx = snake.get_head().unwrap().get_x() - apple.get_coordinates().get_x();
         let dy = snake.get_head().unwrap().get_y() - apple.get_coordinates().get_y();

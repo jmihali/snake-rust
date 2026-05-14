@@ -6,6 +6,7 @@ pub struct Apple {
 }
 
 impl Apple {
+    #[allow(unused)]
     pub fn new(x: u32, y: u32) -> Self {
         Apple {
             coordinates: Coordinates::new(x as i32, y as i32),

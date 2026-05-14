@@ -18,6 +18,7 @@ impl Coordinates {
 }
 
 impl Coordinates {
+    #[allow(unused)]
     pub fn is_contiguous_to(&self, other: &Coordinates) -> bool {
         (self.x - other.x == 0 && i32::abs(self.y - other.y) == 1)
             || (self.y - other.y == 0 && i32::abs(self.x - other.x) == 1)

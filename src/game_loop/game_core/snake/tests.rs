@@ -1,8 +1,7 @@
 #[cfg(test)]
 mod tests {
+    use crate::game_loop::game_core::Apple;
     use crate::game_loop::game_core::Orientation;
-    use crate::game_loop::game_core::apple;
-    use crate::game_loop::game_core::apple::Apple;
     use crate::game_loop::game_core::coordinates::*;
     use crate::game_loop::game_core::snake::*;
 

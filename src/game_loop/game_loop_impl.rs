@@ -1,6 +1,6 @@
 use std::process::exit;
 
-use crate::game_loop::ai_model::{self, AIModel};
+use crate::game_loop::ai_model::AIModel;
 use crate::game_loop::error::{Error, Result};
 use crate::game_loop::game_core::{Apple, Coordinates, Orientation, Snake};
 use crate::game_loop::platform::{MyColor, MyKeyCode, Platform};
@@ -10,7 +10,6 @@ pub const GREEN: MyColor = [0.0, 1.0, 0.0, 1.0];
 pub const DARKGREEN: MyColor = [0.0, 0.4, 0.0, 1.0];
 pub const DARKGRAY: MyColor = [0.3, 0.3, 0.3, 1.0];
 pub const BLACK: MyColor = [0.0, 0.0, 0.0, 1.0];
-pub const WHITE: MyColor = [1.0, 1.0, 1.0, 1.0];
 
 #[derive(Default)]
 enum GameState {

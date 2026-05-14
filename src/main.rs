@@ -3,7 +3,6 @@ use game_loop::GameLoop;
 
 #[cfg(feature = "macroquad_support")]
 mod platform_macroquad;
-use macroquad::math::bool;
 #[cfg(feature = "macroquad_support")]
 use platform_macroquad::MacroquadPlatform;
 
@@ -14,10 +13,8 @@ use platform_raylib::RaylibPlatform;
 #[cfg(feature = "raylib_support")]
 use tokio::runtime::Runtime;
 
-mod ai_model_naive_random;
-use ai_model_naive_random::AIModelNaiveRandom;
 mod ai_model_bfs;
-use crate::game_loop::AIModel;
+mod ai_model_naive_random;
 use ai_model_bfs::AIModelBFS;
 use std::env;
 

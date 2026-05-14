@@ -7,7 +7,6 @@ mod platform;
 
 // -- Flatten
 pub use ai_model::*;
-use error::*;
 pub use game_core::*;
 pub use game_loop_impl::*;
 pub use platform::*;
