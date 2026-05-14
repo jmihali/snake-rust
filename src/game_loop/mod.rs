@@ -9,7 +9,7 @@ mod platform;
 mod snake_algorithm;
 
 // -- Flatten
-pub use game_core::*;
+pub(crate) use game_core::*;
 pub use game_loop_decl::*;
 pub use platform::*;
 pub use snake_algorithm::*;
