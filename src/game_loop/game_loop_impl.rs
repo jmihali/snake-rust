@@ -67,6 +67,16 @@ impl<P: Platform> GameLoop<P> {
         Ok(None)
     }
 
+    fn is_apple_about_to_be_reached(&self) -> Result<bool> {
+        let head = self
+            .snake
+            .get_head()
+            .map_err(|_| Error::FailedToAdvanceSnake)?;
+        let (dx, dy) = self.snake.get_head_orientation().get_delta();
+        let next_head = Coordinates::new(head.get_x() + dx, head.get_y() + dy);
+        Ok(next_head == *self.apple.get_coordinates())
+    }
+
     fn draw_snake(&self) {
         for (i, coordinates) in self.snake.get_body().iter().enumerate() {
             let px = coordinates.get_x() as f32 * self.cell_size;
@@ -143,7 +153,6 @@ impl<P: Platform> GameLoop<P> {
         self.initialize_entities()?;
 
         let mut timer = 0.0;
-        let mut grow = false;
         let mut new_head_orientation = self.snake.get_head_orientation();
 
         self.platform.set_screen_size(
@@ -185,10 +194,11 @@ impl<P: Platform> GameLoop<P> {
                         }
 
                         self.snake.set_head_orientation(new_head_orientation);
+
+                        let grow = self.is_apple_about_to_be_reached()?;
                         self.snake
                             .advance(grow)
                             .map_err(|_| Error::FailedToAdvanceSnake)?;
-                        grow = false;
 
                         if let Some(game_event) = self.check_for_game_event()? {
                             match game_event {
@@ -202,7 +212,6 @@ impl<P: Platform> GameLoop<P> {
                                         self.snake.get_body(),
                                     ) {
                                         self.apple = apple;
-                                        grow = true;
                                     } else {
                                         // if no apple can be spawned, it means that there is no space in the grid anymore
                                         self.state = GameState::GameWon;
@@ -224,7 +233,6 @@ impl<P: Platform> GameLoop<P> {
                         self.initialize_entities()?;
                         self.state = GameState::Running;
                         timer = 0.0;
-                        grow = false;
                     }
                 }
             }
