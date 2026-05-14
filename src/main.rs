@@ -11,14 +11,14 @@ mod platform_raylib;
 #[cfg(feature = "raylib_support")]
 use platform_raylib::RaylibPlatform;
 #[cfg(feature = "raylib_support")]
-use tokio::runtime::Runtime;
+use tokio::runtime::Builder;
 
 mod snake_algorithm_bfs;
 mod snake_algorithm_naive;
 use clap::Parser;
 use snake_algorithm_bfs::SnakeAlgorithmBFS;
 
-use crate::game_loop::SnakeAlgorithm;
+use crate::game_loop::{Platform, SnakeAlgorithm};
 
 const CELL_SIZE: f32 = 20.0;
 
@@ -35,17 +35,10 @@ struct Args {
     ai: bool,
 }
 
-#[macroquad::main("Snake in Rust")]
-// #[tokio::main(flavor = "current_thread")]
-async fn main() {
-    let args = Args::parse();
-
-    #[cfg(feature = "macroquad_support")]
-    let platform = MacroquadPlatform::new();
-
-    #[cfg(feature = "raylib_support")]
-    let platform = RaylibPlatform::new(800, 800, "Snake Game - Raylib Edition");
-
+async fn run_game<P: Platform>(
+    platform: P,
+    args: Args,
+) -> std::result::Result<(), Box<dyn std::error::Error>> {
     let snake_algorithm: Option<Box<dyn SnakeAlgorithm>> = if args.ai {
         Some(Box::new(SnakeAlgorithmBFS::new()))
     } else {
@@ -61,7 +54,7 @@ async fn main() {
         _ => 0.15,
     };
 
-    let mut game_loop: GameLoop<MacroquadPlatform> = GameLoop::new(
+    let mut game_loop: GameLoop<P> = GameLoop::new(
         args.grid_width,
         args.grid_height,
         CELL_SIZE,
@@ -70,12 +63,34 @@ async fn main() {
         snake_algorithm,
     );
 
-    let res = game_loop.run_game_loop().await;
+    game_loop
+        .run_game_loop()
+        .await
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+}
+
+#[cfg(feature = "macroquad_support")]
+#[macroquad::main("Snake in Rust")]
+async fn main() {
+    let args = Args::parse();
+    let platform = MacroquadPlatform::new();
+
+    if let Err(err) = run_game(platform, args).await {
+        eprintln!("Game loop failed with error {}", err);
+        std::process::exit(-1);
+    }
+}
+
+#[cfg(feature = "raylib_support")]
+fn main() {
+    let args = Args::parse();
+    let platform = RaylibPlatform::new(800, 800, "Snake Game - Raylib Edition");
+
+    let rt = Builder::new_current_thread().build().unwrap();
+    let res = rt.block_on(run_game(platform, args));
 
     if let Err(err) = res {
         eprintln!("Game loop failed with error {}", err);
         std::process::exit(-1);
-    } else {
-        std::process::exit(0);
     }
 }
