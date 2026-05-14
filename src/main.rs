@@ -16,18 +16,27 @@ use tokio::runtime::Runtime;
 mod ai_model_bfs;
 mod ai_model_naive_random;
 use ai_model_bfs::AIModelBFS;
-use std::env;
+use clap::Parser;
 
 const CELL_SIZE: f32 = 20.0;
-const GRID_WIDTH: u32 = 20;
-const GRID_HEIGHT: u32 = 20;
-const MOVE_DELAY: f32 = 0.15; // seconds between moves
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    #[arg(long, default_value_t = 20, value_parser = clap::value_parser!(u32).range(10..=50))]
+    grid_width: u32,
+    #[arg(long, default_value_t = 20, value_parser = clap::value_parser!(u32).range(10..=30))]
+    grid_height: u32,
+    #[arg(long, default_value_t = 3, value_parser = clap::value_parser!(u32).range(1..=5))]
+    speed: u32,
+    #[arg(long, default_value_t = false)]
+    ai: bool,
+}
 
 #[macroquad::main("Snake in Rust")]
 // #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    let args: Vec<String> = env::args().collect();
-    let use_ai = args.len() > 1 && args[1] == "ai";
+    let args = Args::parse();
 
     #[cfg(feature = "macroquad_support")]
     let platform = MacroquadPlatform::new();
@@ -35,17 +44,26 @@ async fn main() {
     #[cfg(feature = "raylib_support")]
     let platform = RaylibPlatform::new(800, 800, "Snake Game - Raylib Edition");
 
-    let ai_model = if use_ai {
+    let ai_model = if args.ai {
         Some(AIModelBFS::new())
     } else {
         None
     };
 
+    let move_delay = match args.speed {
+        1 => 0.3,
+        2 => 0.15,
+        3 => 0.1,
+        4 => 0.05,
+        5 => 0.01,
+        _ => 0.15,
+    };
+
     let mut game_loop: GameLoop<MacroquadPlatform, _> = GameLoop::new(
-        GRID_WIDTH,
-        GRID_HEIGHT,
+        args.grid_width,
+        args.grid_height,
         CELL_SIZE,
-        MOVE_DELAY,
+        move_delay,
         platform,
         ai_model,
     );
