@@ -161,6 +161,11 @@ impl<P: Platform, A: AIModel> GameLoop<P, A> {
         loop {
             self.platform.clear(BLACK);
 
+            // Press Q to quit
+            if self.platform.is_key_pressed(MyKeyCode::Q) {
+                exit(0);
+            }
+
             match self.state {
                 GameState::Running => {
                     if self.ai_model.is_none() {
@@ -194,14 +199,12 @@ impl<P: Platform, A: AIModel> GameLoop<P, A> {
                     }
                 }
                 GameState::GameOver => {
-                    // press Enter to restart, or Q to quit
+                    // press Enter to restart
                     if self.platform.is_key_pressed(MyKeyCode::Enter) {
                         self.initialize_entities()?;
                         self.state = GameState::Running;
                         timer = 0.0;
                         self.grow = false;
-                    } else if self.platform.is_key_pressed(MyKeyCode::Q) {
-                        exit(0);
                     }
                 }
             }
