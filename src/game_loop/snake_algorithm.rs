@@ -1,6 +1,6 @@
 use crate::game_loop::{Apple, Orientation, Snake};
 
-pub trait AIModel {
+pub trait SnakeAlgorithm {
     fn decide_next_move(
         &self,
         snake: &Snake,

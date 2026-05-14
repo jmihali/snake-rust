@@ -1,9 +1,9 @@
-use crate::game_loop::{AIModel, Apple, Coordinates, Orientation, Snake};
+use crate::game_loop::{Apple, Coordinates, Orientation, Snake, SnakeAlgorithm};
 use std::collections::{HashMap, HashSet, VecDeque};
 
-pub struct AIModelBFS {}
+pub struct SnakeAlgorithmBFS {}
 
-impl AIModel for AIModelBFS {
+impl SnakeAlgorithm for SnakeAlgorithmBFS {
     fn decide_next_move(
         &self,
         snake: &Snake,
@@ -42,7 +42,7 @@ impl AIModel for AIModelBFS {
     }
 }
 
-impl AIModelBFS {
+impl SnakeAlgorithmBFS {
     fn find_path_to_target(
         &self,
         snake: &Snake,
@@ -260,8 +260,8 @@ mod tests {
 
     #[test]
     fn can_reach_when_start_and_goal_are_same() {
-        let ai = AIModelBFS::new();
-        assert!(ai.can_reach((2, 2), (2, 2), &HashSet::new(), 5, 5));
+        let snake_algorithm = SnakeAlgorithmBFS::new();
+        assert!(snake_algorithm.can_reach((2, 2), (2, 2), &HashSet::new(), 5, 5));
     }
 
     #[test]
@@ -277,14 +277,20 @@ mod tests {
         )
         .unwrap();
 
-        let ai = AIModelBFS::new();
+        let snake_algorithm = SnakeAlgorithmBFS::new();
         let apple = Apple::new(0, 0);
 
-        assert!(ai.is_move_safe(&snake, Orientation::East, apple.get_coordinates(), 5, 5));
+        assert!(snake_algorithm.is_move_safe(
+            &snake,
+            Orientation::East,
+            apple.get_coordinates(),
+            5,
+            5
+        ));
     }
 }
 
-impl AIModelBFS {
+impl SnakeAlgorithmBFS {
     pub fn new() -> Self {
         Self {}
     }

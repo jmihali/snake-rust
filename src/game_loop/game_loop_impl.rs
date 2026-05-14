@@ -1,9 +1,9 @@
 use std::process::exit;
 
-use crate::game_loop::ai_model::AIModel;
 use crate::game_loop::error::{Error, Result};
 use crate::game_loop::game_core::{Apple, Coordinates, Orientation, Snake};
 use crate::game_loop::platform::{MyColor, MyKeyCode, Platform};
+use crate::game_loop::snake_algorithm::SnakeAlgorithm;
 
 pub const RED: MyColor = [1.0, 0.0, 0.0, 1.0];
 pub const GREEN: MyColor = [0.0, 1.0, 0.0, 1.0];
@@ -18,7 +18,7 @@ enum GameState {
     GameOver,
 }
 
-pub struct GameLoop<P: Platform, A: AIModel> {
+pub struct GameLoop<P: Platform, A: SnakeAlgorithm> {
     snake: Snake,
     apple: Apple,
     state: GameState,
@@ -28,10 +28,10 @@ pub struct GameLoop<P: Platform, A: AIModel> {
     cell_size: f32,
     move_delay: f32,
     platform: P,
-    ai_model: Option<A>,
+    snake_algorithm: Option<A>,
 }
 
-impl<P: Platform, A: AIModel> GameLoop<P, A> {
+impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
     fn initialize_entities(&mut self) -> Result<()> {
         self.snake = Snake::new(Coordinates::new(1, 1), Orientation::East);
         self.apple =
@@ -123,14 +123,14 @@ impl<P: Platform, A: AIModel> GameLoop<P, A> {
     }
 }
 
-impl<P: Platform, A: AIModel> GameLoop<P, A> {
+impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
     pub fn new(
         grid_width: u32,
         grid_height: u32,
         cell_size: f32,
         move_delay: f32,
         platform: P,
-        ai_model: Option<A>,
+        snake_algorithm: Option<A>,
     ) -> Self {
         Self {
             snake: Snake::default(),
@@ -142,7 +142,7 @@ impl<P: Platform, A: AIModel> GameLoop<P, A> {
             cell_size,
             move_delay,
             platform,
-            ai_model,
+            snake_algorithm,
         }
     }
 
@@ -168,7 +168,7 @@ impl<P: Platform, A: AIModel> GameLoop<P, A> {
 
             match self.state {
                 GameState::Running => {
-                    if self.ai_model.is_none() {
+                    if self.snake_algorithm.is_none() {
                         if let Some(orientation) = self.get_orientation_from_input() {
                             new_head_orientation = orientation;
                         }
@@ -180,8 +180,8 @@ impl<P: Platform, A: AIModel> GameLoop<P, A> {
                     if timer >= self.move_delay {
                         timer = 0.0;
 
-                        if let Some(ai) = &self.ai_model {
-                            if let Some(orientation) = ai.decide_next_move(
+                        if let Some(algorithm) = &self.snake_algorithm {
+                            if let Some(orientation) = algorithm.decide_next_move(
                                 &self.snake,
                                 &self.apple,
                                 self.grid_width,

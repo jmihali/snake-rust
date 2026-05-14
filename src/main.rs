@@ -13,10 +13,10 @@ use platform_raylib::RaylibPlatform;
 #[cfg(feature = "raylib_support")]
 use tokio::runtime::Runtime;
 
-mod ai_model_bfs;
-mod ai_model_naive_random;
-use ai_model_bfs::AIModelBFS;
+mod snake_algorithm_bfs;
+mod snake_algorithm_naive;
 use clap::Parser;
+use snake_algorithm_bfs::SnakeAlgorithmBFS;
 
 const CELL_SIZE: f32 = 20.0;
 
@@ -44,8 +44,8 @@ async fn main() {
     #[cfg(feature = "raylib_support")]
     let platform = RaylibPlatform::new(800, 800, "Snake Game - Raylib Edition");
 
-    let ai_model = if args.ai {
-        Some(AIModelBFS::new())
+    let snake_algorithm = if args.ai {
+        Some(SnakeAlgorithmBFS::new())
     } else {
         None
     };
@@ -65,7 +65,7 @@ async fn main() {
         CELL_SIZE,
         move_delay,
         platform,
-        ai_model,
+        snake_algorithm,
     );
 
     let _ = game_loop.run_game_loop().await;
