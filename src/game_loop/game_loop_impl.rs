@@ -167,7 +167,7 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
 
             // Press Q to quit
             if self.platform.is_key_pressed(MyKeyCode::Q) {
-                exit(0);
+                return Ok(());
             }
 
             match self.state {

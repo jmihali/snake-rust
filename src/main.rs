@@ -68,5 +68,12 @@ async fn main() {
         snake_algorithm,
     );
 
-    let _ = game_loop.run_game_loop().await;
+    let res = game_loop.run_game_loop().await;
+
+    if let Err(err) = res {
+        eprintln!("Game loop failed with error {}", err);
+        std::process::exit(-1);
+    } else {
+        std::process::exit(0);
+    }
 }
