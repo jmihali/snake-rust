@@ -178,7 +178,7 @@ impl<P: Platform, A: SnakeAlgorithm> GameLoop<P, A> {
                     timer += dt;
 
                     if timer >= self.move_delay {
-                        timer = 0.0;
+                        timer -= self.move_delay;
 
                         if let Some(algorithm) = &self.snake_algorithm {
                             if let Some(orientation) = algorithm.decide_next_move(
