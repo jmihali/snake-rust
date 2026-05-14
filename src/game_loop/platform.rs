@@ -25,6 +25,8 @@ pub trait Platform {
         thickness: f32,
         color: MyColor,
     );
+    fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: MyColor);
+    fn get_text_width(&self, text: &str, font_size: f32) -> f32;
 
     fn set_screen_size(&self, width: f32, height: f32);
 

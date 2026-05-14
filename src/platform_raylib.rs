@@ -83,6 +83,24 @@ impl Platform for RaylibPlatform {
         }
     }
 
+    fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: MyColor) {
+        if let Some(ref mut d) = *self.draw_handle.borrow_mut() {
+            d.draw_text(
+                text,
+                x as i32,
+                y as i32,
+                font_size as i32,
+                raylib::color::Color::color_from_normalized(Vector4::new(
+                    color[0], color[1], color[2], color[3],
+                )),
+            );
+        }
+    }
+
+    fn get_text_width(&self, text: &str, font_size: f32) -> f32 {
+        raylib::text::measure_text(text, font_size as i32)
+    }
+
     fn set_screen_size(&self, width: f32, height: f32) {
         let mut rl = self.rl.borrow_mut();
         rl.set_window_size(width as i32, height as i32);

@@ -8,6 +8,7 @@ pub const GREEN: MyColor = [0.0, 1.0, 0.0, 1.0];
 pub const DARKGREEN: MyColor = [0.0, 0.4, 0.0, 1.0];
 pub const DARKGRAY: MyColor = [0.3, 0.3, 0.3, 1.0];
 pub const BLACK: MyColor = [0.0, 0.0, 0.0, 1.0];
+pub const WHITE: MyColor = [1.0, 1.0, 1.0, 1.0];
 
 #[derive(Default, PartialEq, Eq)]
 enum GameState {
@@ -111,6 +112,19 @@ impl<P: Platform> GameLoop<P> {
                 );
             }
         }
+    }
+
+    fn add_text_overlay(&self, text: &str, font_size: f32) {
+        let screen_width = self.grid_width as f32 * self.cell_size;
+        let screen_height = self.grid_height as f32 * self.cell_size;
+        let text_width = self.platform.get_text_width(text, font_size);
+        self.platform.draw_text(
+            text,
+            screen_width / 2.0 - text_width / 2.0,
+            screen_height / 2.0,
+            font_size,
+            WHITE,
+        );
     }
 
     fn get_orientation_from_input(&self) -> Option<Orientation> {
@@ -222,12 +236,6 @@ impl<P: Platform> GameLoop<P> {
                     }
                 }
                 GameState::GameOver | GameState::GameWon => {
-                    if self.state == GameState::GameWon {
-                        println!(
-                            "CONGRATULATIONS! YOU WON THE GAME! :) Press Enter to restart or Q to exit"
-                        );
-                    }
-
                     // press Enter to restart
                     if self.platform.is_key_pressed(MyKeyCode::Enter) {
                         self.initialize_entities()?;
@@ -241,6 +249,15 @@ impl<P: Platform> GameLoop<P> {
             self.draw_background_grid();
             self.draw_snake();
             self.draw_apple();
+
+            if self.state == GameState::GameOver {
+                self.add_text_overlay("Game Over! Press Enter to restart or Q to exit", 20.0);
+            } else if self.state == GameState::GameWon {
+                self.add_text_overlay(
+                    "Congratulations! You won! Press Enter to restart or Q to exit",
+                    20.0,
+                );
+            }
 
             self.platform.wait_for_frame().await;
         }

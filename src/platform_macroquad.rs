@@ -44,6 +44,20 @@ impl Platform for MacroquadPlatform {
         );
     }
 
+    fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: MyColor) {
+        macroquad::text::draw_text(
+            text,
+            x,
+            y,
+            font_size,
+            macroquad::color::Color::from_vec(color.into()),
+        );
+    }
+
+    fn get_text_width(&self, text: &str, font_size: f32) -> f32 {
+        macroquad::text::measure_text(text, None, font_size as u16, 1.0).width
+    }
+
     fn set_screen_size(&self, width: f32, height: f32) {
         macroquad::window::request_new_screen_size(width, height);
     }
